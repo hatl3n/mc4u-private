@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Table, Form, Button, Container } from 'react-bootstrap';
 
 // This component expects a string tableHeading and an object with column_name:value for each row in table/database

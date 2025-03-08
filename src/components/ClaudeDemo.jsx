@@ -3,19 +3,22 @@ import { Container, Row, Col, Card, Table, Button, Form, Modal, Spinner, Alert, 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { supabase } from '../supabase';
 
-// TODO: Import freetext-search and text-filters from DynamicTable.jsx. Consider how it should be UI wise, should not always be visible I think.
 // TODO: Customers should use a <Card> component, also saves loading all the customers at once. Same for Bikes.
 // TODO: Finn ut hvordan denne best gjenbrukes til å kunne se Arbeidsordre, Lagerbeholdning, ToDo, etc. (OK å lage custom PAges pr, men bør gjøres så normalisert som mulig, gjerne med no config i toppen)
 // Custom views som feks Ny Arbeidsordre som fraviker fra Modal-versjonen som er standard. Og eventuelle strekkode-versjoner feks for fremtiden.
 // TODO: Ha en løsning for når det er over 1000 rows, som er Supabase limit. Paginering virker ganske ryddig.
 // Mulighet ift lager-trekk; når en arbeidsordre går til "plukk/påbegynt" så trekkes deler fra lageret. Til slutt er den "ferdig", evt 2 for "verksted ferdig" og "betaling helt ferdig" typ.
+// TODO IMPORTANT: EACH QUERY TO SUPABASE RUNS TWICE - ONLY IN DEV, OR?
+// TODO: Når description (eks) blir lang, så endres alle breddene i tabellen. Ikke ryddig, med samtidig, noen td må være brede og andre ikke for dynamisk data -how to fix?
 
-function ClaudeDemo() {
+function ClaudeDemo({ tableHeading, tableData, onEdit }) {
     // Main entity state
     const [items, setItems] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const tableHeads = ['Name', 'Description', 'Category', 'Price', 'Actions'];
+    const disableColumnFilters = true;
 
     // Form state
     const [selectedItem, setSelectedItem] = useState(null);
@@ -32,22 +35,76 @@ function ClaudeDemo() {
     const [alertMessage, setAlertMessage] = useState(null);
     const [alertVariant, setAlertVariant] = useState('success');
 
-    // Category search state
+    // Category search state (in new/edit mode)
     const [categorySearchTerm, setCategorySearchTerm] = useState('');
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
     const [filteredCategories, setFilteredCategories] = useState([]);
 
     // Filter state
     const [filteredItems, setFilteredItems] = useState([]);
-    const [activeCategoryId, setActiveCategoryId] = useState(null); // New state for active category
+    const [activeCategoryId, setActiveCategoryId] = useState(null); // New state for active category (list filter)
+
+    // Search state
+    const [searchTerm, setSearchTerm] = useState("");
+
+    // Filter state (per-column search/filter)
+    const [filters, setFilters] = useState({});
+
+    // Sorting state
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
     // Fetch data on component mount
     useEffect(() => {
         fetchData();
     }, []);
 
-    // Update filtered categories when search term changes
+    // Filter items based on search, filter or ordering (used in list view)
     useEffect(() => {
+        // Array that gets updated by following filters. Resets filtered items in case any state is Null or undefined.
+        let filtered = [...items];
+
+        // Apply text search filtering
+        if (searchTerm) {
+            filtered = items.filter((row) =>
+                // Take all the values and flatten them by JSONstringifying them, also makes recursive object searchable, and goes to lowercase for non-sensitive search
+                JSON.stringify(Object.values(row)).toLowerCase()
+                    .includes(searchTerm.toLowerCase())
+            );
+        }
+
+        // Apply category filter
+        if (activeCategoryId) {
+            filtered = filtered.filter((i) => i.category_id === activeCategoryId);
+        }
+
+        // Apply column-based filters
+        // TODO!!!! MAKE CASE INSENSITIVE!
+        Object.keys(filters).forEach((col) => {
+            if (filters[col]) {
+                filtered = filtered.filter((row) => row[col] && row[col].toString().includes(filters[col]));
+            }
+        });
+
+        // Apply sorting
+        if (sortConfig.key) {
+            filtered = filtered.sort((a, b) => {
+                const aValue = a[sortConfig.key.toLowerCase()]; // WOOPSIE-DOOPISE; need to use other than toLowerCase(), should have one data tag for column key and one for display name, also bad typesafety
+                const bValue = b[sortConfig.key.toLowerCase()];
+
+                // Can use, to parse floats/ints as numeric: isNaN(b[sortConfig.key]), cuz price is currently string in supabase.
+
+                if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+                if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        setFilteredItems(filtered);
+    }, [items, searchTerm, activeCategoryId, filters, sortConfig]);
+
+    // Update filtered categories when search term changes (used in create modal!)
+    useEffect(() => {
+        // Apply category filter
         if (categories.length > 0) {
             const filtered = categories.filter(category =>
                 category.name.toLowerCase().includes(categorySearchTerm.toLowerCase())
@@ -57,6 +114,7 @@ function ClaudeDemo() {
     }, [categorySearchTerm, categories]);
 
     // Fetch both items and categories
+    // TODO: I think this should be rebuilt to syncronous, cuz now it runs two times, likely due to async-stuff maybe?
     const fetchData = async () => {
         setLoading(true);
         try {
@@ -252,7 +310,7 @@ function ClaudeDemo() {
 
     return (
         <Container className="py-4">
-            <h1 className="mb-4">Inventory Management</h1>
+            <h1 className="mb-4">{tableHeading || "List data"}</h1>
 
             {/* Alert for notifications */}
             {alertMessage && (
@@ -279,40 +337,61 @@ function ClaudeDemo() {
 
                     {/* Filter buttons */}
                     {!loading && !error && items.length > 0 && (
-                        <ButtonGroup aria-label='Filtrer' className="mb-3">
-                            <Button
-                                variant={activeCategoryId === null ? "primary" : "secondary"}
-                                onClick={(e) => {
-                                    setFilteredItems(items);
-                                    setActiveCategoryId(null);
-                                }}
-                            >
-                                All
-                            </Button>
-                            {categories.map(category => (
+                        <><Form.Group className="mb-2">
+                            <Form.Control
+                                type="text"
+                                placeholder="Search"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                autoComplete='one-time-code' />
+                        </Form.Group>
+
+                            <ButtonGroup aria-label='Filtrer' className="mb-3">
                                 <Button
-                                    key={category.id}
-                                    variant={activeCategoryId === category.id ? "primary" : "secondary"}
-                                    onClick={(e) => {
-                                        setFilteredItems(items.filter((i) => i.category_id === category.id));
-                                        setActiveCategoryId(category.id);
-                                    }}
+                                    variant={activeCategoryId === null ? "primary" : "secondary"}
+                                    onClick={(e) => setActiveCategoryId(null)}
                                 >
-                                    {category.name}
+                                    All
                                 </Button>
-                            ))}
-                        </ButtonGroup>
+                                {categories.map(category => (
+                                    <Button
+                                        key={category.id}
+                                        variant={activeCategoryId === category.id ? "primary" : "secondary"}
+                                        onClick={(e) => setActiveCategoryId(category.id)}
+                                    >
+                                        {category.name}
+                                    </Button>
+                                ))}
+                            </ButtonGroup></>
                     )}
 
-                    {!loading && !error && filteredItems.length > 0 && (
+                    {!loading && !error && tableHeads.length > 0 && (
                         <Table responsive hover>
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Description</th>
-                                    <th>Category</th>
-                                    <th>Price</th>
-                                    <th>Actions</th>
+                                    {tableHeads.map((head, idx) => (
+                                        <th key={idx}
+                                            onClick={() => setSortConfig({ key: head, direction: sortConfig.key === head && sortConfig.direction === 'asc' ? 'desc' : 'asc' })}
+                                            style={{ cursor: 'pointer' }}
+                                        >
+                                            {head}
+                                            {sortConfig.key === head && (sortConfig.direction === 'asc' ? ' ↑' : ' ↓')}
+                                        </th>
+                                    ))}
+                                </tr>
+                                <tr>
+                                    { !disableColumnFilters && tableHeads.map((col) => (
+                                        <td key={col}>
+                                            <Form.Control
+                                                key={col.toLowerCase()}
+                                                type="text"
+                                                placeholder={`Filter by ${col.toLowerCase()}`}
+                                                value={filters[col.toLowerCase()] || ""}
+                                                onChange={(e) => setFilters((prev) => ({ ...prev, [col.toLowerCase()]: e.target.value }))}
+                                                /* TODO: TEMP WORKAROUND UNTIL COLUMNS ARE ACTUAL KEYS AND DISPLAY NAMES */
+                                            />
+                                        </td>
+                                    ))}
                                 </tr>
                             </thead>
                             <tbody>
@@ -328,7 +407,7 @@ function ClaudeDemo() {
                                             )}
                                         </td>
                                         <td>{item.price ? formatPrice(item.price) : '-'}</td>
-                                        <td>
+                                        <td style={{ minWidth: "130px" }}>
                                             <Button
                                                 variant="outline-primary"
                                                 size="sm"

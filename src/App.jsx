@@ -6,6 +6,7 @@ import Orders from "./pages/Orders";
 import Auth from "./components/Auth";
 import ToDoSystem from "./pages/ToDoSystem";
 import ClaudeDemo from "./components/ClaudeDemo";
+import WorkOrderPage from "./pages/WorkOrder";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
                 <Nav.Link as={Link} to="/orders">&#x1F4DC;Orders</Nav.Link>
                 <Nav.Link as={Link} to="/todosystem">&#x1F4DD;ToDo System</Nav.Link>
                 <Nav.Link as={Link} to="/claudedemo">&#x1F4DD;ClaudeMal</Nav.Link>
+                <Nav.Link as={Link} to="/work-orders">&#x1F527;Arbeidsordre</Nav.Link>
                 <Nav.Link as={Link} to="/customers">&#x1F913;Kunder</Nav.Link>
                 <Nav.Link as={Link} to="/bikes">&#x1F3CD;Sykler</Nav.Link>
               </Nav>
@@ -36,6 +38,7 @@ function App() {
             <Route path="/orders" element={<Orders />} />
             <Route path="/todosystem" element={<ToDoSystem />} />
             <Route path="/claudedemo" element={<ClaudeDemo />} />
+            <Route path="/work-orders" element={<WorkOrderPage />} />
           </Routes>
         </Container>
       </Router>

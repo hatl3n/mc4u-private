@@ -4,6 +4,7 @@ import DynamicTable from "../components/DynamicTable";
 import CreateToDoEntry from "../components/CreateToDoEntry";
 import useFetchToDoData from "../hooks/useFetchToDoData";
 import useFetchCustomersAndBikes from "../hooks/useFetchCustomersAndBikes";
+import ClaudeDemo from "../components/ClaudeDemo";
 
 function ToDoSystem() {
   const { data, loading, error, fetchData } = useFetchToDoData();
@@ -69,6 +70,9 @@ function ToDoSystem() {
           </Tab>
           <Tab eventKey="completed" title="Completed">
             <DynamicTable tableHeading="Completed ToDos" tableData={filteredData.completed} onEdit={onEdit} />
+          </Tab>
+          <Tab eventKey="claude" title="ClaudeDemo-Versjon-test">
+            <ClaudeDemo tableHeading="Completed ToDos" tableData={enhancedData} onEdit={onEdit} />
           </Tab>
           <Tab eventKey="add-new" title={ editItem ? "\u270F Rediger" : `\u2795 Ny`} >
             <CreateToDoEntry onEntryAdded={onEntryAdded} editItem={editItem} setEditItem={setEditItem} />
