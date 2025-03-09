@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Table, Button, Form, Modal, Spinner, Alert, Badge, InputGroup, ButtonGroup } from 'react-bootstrap';
+import { Container, Card, Table, Button, Form, Modal, Spinner, Alert, Badge, InputGroup, ButtonGroup } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { supabase } from '../supabase';
 
@@ -11,14 +11,57 @@ import { supabase } from '../supabase';
 // TODO IMPORTANT: EACH QUERY TO SUPABASE RUNS TWICE - ONLY IN DEV, OR?
 // TODO: Når description (eks) blir lang, så endres alle breddene i tabellen. Ikke ryddig, med samtidig, noen td må være brede og andre ikke for dynamisk data -how to fix?
 
-function ClaudeDemo({ tableHeading, tableData, onEdit }) {
+function EditAndDeleteButtons({item, handleEdit, handleDelete}) {
+    return (
+        <div style={{ minWidth: '130px' }}>
+            {/* Div-wrapper to make both buttons stay on line when responsive */}
+            <Button
+                variant="outline-primary"
+                size="sm"
+                className="me-2"
+                onClick={() => handleEdit(item)}
+            >
+                Edit
+            </Button>
+            <Button
+                variant="outline-danger"
+                size="sm"
+                onClick={() => handleDelete(item.id)}
+            >
+                Delete
+            </Button>
+        </div>
+    );
+}
+
+
+function ClaudeDemo({ tableHeading, tableData, dataModelMeta }) {
     // Main entity state
     const [items, setItems] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const tableHeads = ['Name', 'Description', 'Category', 'Price', 'Actions'];
     const disableColumnFilters = true;
+
+    // Trying to make this into desciptive, resuble formats
+    /**
+     * dataModelMeta holds metadata about table information and processing
+     * @param {key} key - The key in the data object
+     * @param {label} label - The label to show in the table
+     * @param {type} type - The type of data, used for rendering and processing
+     * @param {valueOverride} valueOverride - Function or Array of keys to override the value of the data (ex ['foo','bar'] will look in sqlData['foo']['bar'])
+     * Notice that you can also add other keys not in the sql-data, like 'actions' for buttons etc.
+     */
+    if (!dataModelMeta) {
+        dataModelMeta = [
+            //{key: 'id', label: 'ID', type: 'text'},
+            { key: 'name', label: 'Name', type: 'text' },
+            { key: 'description', label: 'Description', type: 'textarea' },
+            { key: 'category_id', label: 'Category', valueOverride: ['categories', 'name'], type: 'select' },
+            { key: 'price', label: 'Price', type: 'number', valueOverride: (currentItem) => formatPrice(currentItem.price) },
+            { key: 'actions', label: 'Actions', type: 'actions', valueOverride: (currentItem) => <EditAndDeleteButtons item={currentItem} handleEdit={handleEdit} handleDelete={handleDelete} /> } // This is outside of the model tho
+        ];
+    }
 
     // Form state
     const [selectedItem, setSelectedItem] = useState(null);
@@ -114,7 +157,6 @@ function ClaudeDemo({ tableHeading, tableData, onEdit }) {
     }, [categorySearchTerm, categories]);
 
     // Fetch both items and categories
-    // TODO: I think this should be rebuilt to syncronous, cuz now it runs two times, likely due to async-stuff maybe?
     const fetchData = async () => {
         setLoading(true);
         try {
@@ -349,7 +391,7 @@ function ClaudeDemo({ tableHeading, tableData, onEdit }) {
                             <ButtonGroup aria-label='Filtrer' className="mb-3">
                                 <Button
                                     variant={activeCategoryId === null ? "primary" : "secondary"}
-                                    onClick={(e) => setActiveCategoryId(null)}
+                                    onClick={() => setActiveCategoryId(null)}
                                 >
                                     All
                                 </Button>
@@ -357,7 +399,7 @@ function ClaudeDemo({ tableHeading, tableData, onEdit }) {
                                     <Button
                                         key={category.id}
                                         variant={activeCategoryId === category.id ? "primary" : "secondary"}
-                                        onClick={(e) => setActiveCategoryId(category.id)}
+                                        onClick={() => setActiveCategoryId(category.id)}
                                     >
                                         {category.name}
                                     </Button>
@@ -365,65 +407,62 @@ function ClaudeDemo({ tableHeading, tableData, onEdit }) {
                             </ButtonGroup></>
                     )}
 
-                    {!loading && !error && tableHeads.length > 0 && (
+                    {!loading && !error && dataModelMeta.length > 0 && (
                         <Table responsive hover>
                             <thead>
                                 <tr>
-                                    {tableHeads.map((head, idx) => (
+                                    {dataModelMeta.map((field, idx) => (
                                         <th key={idx}
-                                            onClick={() => setSortConfig({ key: head, direction: sortConfig.key === head && sortConfig.direction === 'asc' ? 'desc' : 'asc' })}
+                                            onClick={() => setSortConfig({ key: field.key, direction: sortConfig.key === field.key && sortConfig.direction === 'asc' ? 'desc' : 'asc' })}
                                             style={{ cursor: 'pointer' }}
                                         >
-                                            {head}
-                                            {sortConfig.key === head && (sortConfig.direction === 'asc' ? ' ↑' : ' ↓')}
+                                            {field.label}
+                                            {sortConfig.key === field.key && (sortConfig.direction === 'asc' ? ' ↑' : ' ↓')}
                                         </th>
                                     ))}
                                 </tr>
                                 <tr>
-                                    { !disableColumnFilters && tableHeads.map((col) => (
-                                        <td key={col}>
+                                    {!disableColumnFilters && dataModelMeta.map((field) => (
+                                        <td key={field.key}>
                                             <Form.Control
-                                                key={col.toLowerCase()}
+                                                key={field.key}
                                                 type="text"
-                                                placeholder={`Filter by ${col.toLowerCase()}`}
-                                                value={filters[col.toLowerCase()] || ""}
-                                                onChange={(e) => setFilters((prev) => ({ ...prev, [col.toLowerCase()]: e.target.value }))}
-                                                /* TODO: TEMP WORKAROUND UNTIL COLUMNS ARE ACTUAL KEYS AND DISPLAY NAMES */
+                                                placeholder={`Filter by ${field.label}`}
+                                                value={filters[field.key] || ""}
+                                                onChange={(e) => setFilters((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                                                autoComplete='one-time-code'
                                             />
                                         </td>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody>
+                                { /* Loop through items left after filtering */}
                                 {filteredItems.map(item => (
                                     <tr key={item.id}>
-                                        <td>{item.name}</td>
-                                        <td>{item.description}</td>
-                                        <td>
-                                            {item.categories ? (
-                                                <Badge bg="secondary">{item.categories.name}</Badge>
-                                            ) : (
-                                                <Badge bg="light" text="dark">None</Badge>
-                                            )}
-                                        </td>
-                                        <td>{item.price ? formatPrice(item.price) : '-'}</td>
-                                        <td style={{ minWidth: "130px" }}>
-                                            <Button
-                                                variant="outline-primary"
-                                                size="sm"
-                                                className="me-2"
-                                                onClick={() => handleEdit(item)}
-                                            >
-                                                Edit
-                                            </Button>
-                                            <Button
-                                                variant="outline-danger"
-                                                size="sm"
-                                                onClick={() => handleDelete(item.id)}
-                                            >
-                                                Delete
-                                            </Button>
-                                        </td>
+                                        {/* Loop through dataModel to display only fields named in model, also override presentation if necessary */}
+                                        {dataModelMeta.map((field, idx) => (
+                                            <td key={idx}>
+                                                { /** Check if dataModel ask for a rewrite of the value, else print item key's value directly */}
+                                                {field.valueOverride ? (
+                                                    Array.isArray(field.valueOverride) && field.valueOverride.length > 0 ? (
+                                                        // Recursively add paths of valueOverride to item to retrieve correct value to use. Example: ['categories', 'name'] will get item.categories.name
+                                                        // Note: this is a very simple workaround for type-saftey (String) and should be improved.
+                                                        String(field.valueOverride.reduce((acc, key) => acc && acc[key], item))
+                                                    ) : (
+                                                        // If valueOverride is not an array, apply the function
+                                                        // Keep in mind that filters/search will not see post-processed values, only the raw data
+                                                        typeof field.valueOverride === 'function' ? (
+                                                            field.valueOverride(item)
+                                                        ) : (
+                                                            "MALFORMED VALUE OVERRIDE:"
+                                                        )
+                                                    )
+                                                ) : (
+                                                    item[field.key]
+                                                )}
+                                            </td>
+                                        ))}
                                     </tr>
                                 ))}
                             </tbody>
