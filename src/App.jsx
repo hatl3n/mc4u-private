@@ -2,11 +2,13 @@ import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
-import Orders from "./pages/Orders";
 import Auth from "./components/Auth";
 import ToDoSystem from "./pages/ToDoSystem";
 import ClaudeDemo from "./components/ClaudeDemo";
-import WorkOrderPage from "./pages/WorkOrder";
+import NewWorkOrderPage from "./pages/NewWorkOrder";
+import Customers from "./pages/Customers";
+import Bikes from "./pages/Bikes";
+import WorkOrders from "./pages/WorkOrders";
 
 function App() {
   return (
@@ -20,7 +22,6 @@ function App() {
               <Nav className="me-auto">
                 <Nav.Link as={Link} to="/">&#x303D;Dashboard</Nav.Link>
                 <Nav.Link as={Link} to="/inventory">&#x1F4E6;Inventory</Nav.Link>
-                <Nav.Link as={Link} to="/orders">&#x1F4DC;Orders</Nav.Link>
                 <Nav.Link as={Link} to="/todosystem">&#x1F4DD;ToDo System</Nav.Link>
                 <Nav.Link as={Link} to="/claudedemo">&#x1F4DD;ClaudeMal</Nav.Link>
                 <Nav.Link as={Link} to="/work-orders">&#x1F527;Arbeidsordre</Nav.Link>
@@ -35,10 +36,13 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/inventory" element={<Inventory />} />
-            <Route path="/orders" element={<Orders />} />
             <Route path="/todosystem" element={<ToDoSystem />} />
             <Route path="/claudedemo" element={<ClaudeDemo />} />
-            <Route path="/work-orders" element={<WorkOrderPage />} />
+            <Route path="/work-orders" element={<WorkOrders />} />
+            <Route path="/work-orders/new" element={<NewWorkOrderPage />} />
+            <Route path="/work-orders/edit/:id" element={<NewWorkOrderPage />} />
+            <Route path="/customers" element={<Customers />} />
+            <Route path="/bikes" element={<Bikes />} />
           </Routes>
         </Container>
       </Router>
