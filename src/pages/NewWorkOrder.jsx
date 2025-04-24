@@ -422,7 +422,7 @@ const NewWorkOrderPage = () => {
           <Badge
             bg={workOrder.status === 'open' ? 'warning' :
               workOrder.status === 'finished' ? 'primary' :
-                workOrder.status === 'completed' ? 'success' :
+                workOrder.status === 'paid' ? 'success' :
                   workOrder.status === 'deleted' ? 'danger' : 'info'}
             className="ms-2"
           >
@@ -507,7 +507,7 @@ const NewWorkOrderPage = () => {
                 >
                   <option value="open">Open</option>
                   <option value="finished">Finished</option>
-                  <option value="completed">Completed</option>
+                  <option value="paid">Betalt</option>
                   <option value="deleted">Deleted</option>
                 </Form.Select>
               </Form.Group>

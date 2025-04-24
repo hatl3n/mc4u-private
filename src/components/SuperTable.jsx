@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Card, Table, Button, Form, Modal, Spinner, Alert, Badge, InputGroup, ButtonGroup } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { supabase } from '../supabase';
+import { data } from 'react-router-dom';
 
 // TODO: Customers should use a <Card> component, also saves loading all the customers at once. Same for Bikes.
 // TODO: Finn ut hvordan denne best gjenbrukes til å kunne se Arbeidsordre, Lagerbeholdning, ToDo, etc. (OK å lage custom PAges pr, men bør gjøres så normalisert som mulig, gjerne med no config i toppen)
@@ -10,30 +11,6 @@ import { supabase } from '../supabase';
 // Mulighet ift lager-trekk; når en arbeidsordre går til "plukk/påbegynt" så trekkes deler fra lageret. Til slutt er den "ferdig", evt 2 for "verksted ferdig" og "betaling helt ferdig" typ.
 // TODO IMPORTANT: EACH QUERY TO SUPABASE RUNS TWICE - ONLY IN DEV, OR?
 // TODO: Når description (eks) blir lang, så endres alle breddene i tabellen. Ikke ryddig, med samtidig, noen td må være brede og andre ikke for dynamisk data -how to fix?
-
-function EditAndDeleteButtons({item, handleEdit, handleDelete}) {
-    return (
-        <div style={{ minWidth: '130px' }}>
-            {/* Div-wrapper to make both buttons stay on line when responsive */}
-            <Button
-                variant="outline-primary"
-                size="sm"
-                className="me-2"
-                onClick={() => handleEdit(item)}
-            >
-                Edit
-            </Button>
-            <Button
-                variant="outline-danger"
-                size="sm"
-                onClick={() => handleDelete(item.id)}
-            >
-                Delete
-            </Button>
-        </div>
-    );
-}
-
 
 function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnClick, handleSubmit }) {
     // Main entity state
@@ -82,17 +59,18 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
                 key: "name",
                 direction: "asc"
             },*/
-            /*actions: {
-                create: true,
-                edit: true,
-                delete: true
-            } // TODO: THESE ER NOT USED YET, STILL RELIES ON ACTIONS KEYS FROM FIELDS. How2FixGood?
-        }
-    }*/
+    /*actions: {
+        create: true,
+        edit: true,
+        delete: true
+    } // TODO: THESE ER NOT USED YET, STILL RELIES ON ACTIONS KEYS FROM FIELDS. How2FixGood?
+}
+}*/
 
     // Filter state
     const [filteredItems, setFilteredItems] = useState([]);
-    const [activeCategoryId, setActiveCategoryId] = useState(null); // New state for active category (list filter)
+    const [activeCategoryValue, setActiveCategoryValue] = useState(null); // New state for active category (list filter)
+    const [activeCategoryDataModelValue, setActiveCategoryDataModelValue] = useState(null); // New state for active category (list filter)
 
     // Search state
     const [searchTerm, setSearchTerm] = useState("");
@@ -127,8 +105,8 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
         }
 
         // Apply category filter
-        if (activeCategoryId) {
-            filtered = filtered.filter((i) => i.category_id === activeCategoryId);
+        if (activeCategoryValue) {
+            filtered = filtered.filter((i) => i[activeCategoryDataModelValue] === activeCategoryValue);
         }
 
         // Apply column-based filters
@@ -154,7 +132,16 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
         }
 
         setFilteredItems(filtered);
-    }, [tableData, searchTerm, activeCategoryId, filters, sortConfig]);
+    }, [tableData, searchTerm, activeCategoryValue, filters, sortConfig]);
+
+    useEffect(() => {
+        const selectFieldsFromDataModel = dataModel.fields.filter((field) => field.type === 'select');
+        if (selectFieldsFromDataModel.length > 0) {
+            // Pick first, TODO: make it multiple
+            setCategories(selectFieldsFromDataModel[0].options);
+            setActiveCategoryDataModelValue(selectFieldsFromDataModel[0].key);
+        }
+    }, [dataModel.fields]);
 
     // Format price as currency
     const formatPrice = (price) => {
@@ -195,18 +182,18 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
 
                             <ButtonGroup aria-label='Filtrer' className="mb-3">
                                 <Button
-                                    variant={activeCategoryId === null ? "primary" : "secondary"}
-                                    onClick={() => setActiveCategoryId(null)}
+                                    variant={activeCategoryValue === null ? "primary" : "secondary"}
+                                    onClick={() => setActiveCategoryValue(null)}
                                 >
                                     All
                                 </Button>
                                 {categories.map(category => (
                                     <Button
-                                        key={category.id}
-                                        variant={activeCategoryId === category.id ? "primary" : "secondary"}
-                                        onClick={() => setActiveCategoryId(category.id)}
+                                        key={category.value}
+                                        variant={activeCategoryValue === category.value ? "primary" : "secondary"}
+                                        onClick={() => setActiveCategoryValue(category.value)}
                                     >
-                                        {category.name}
+                                        {category.label}
                                     </Button>
                                 ))}
                             </ButtonGroup></>
@@ -229,16 +216,16 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
                                 <tr>
                                     {!disableColumnFilters && dataModel.fields.map((field) => (
                                         field.filterable ? (
-                                        <td key={field.key}>
-                                            <Form.Control
-                                                key={field.key}
-                                                type="text"
-                                                placeholder={`Filter by ${field.label}`}
-                                                value={filters[field.key] || ""}
-                                                onChange={(e) => setFilters((prev) => ({ ...prev, [field.key]: e.target.value }))}
-                                                autoComplete='one-time-code'
-                                            />
-                                        </td>
+                                            <td key={field.key}>
+                                                <Form.Control
+                                                    key={field.key}
+                                                    type="text"
+                                                    placeholder={`Filter by ${field.label}`}
+                                                    value={filters[field.key] || ""}
+                                                    onChange={(e) => setFilters((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                                                    autoComplete='one-time-code'
+                                                />
+                                            </td>
                                         ) : (
                                             <td key={field.key}></td>
                                         )
@@ -273,11 +260,40 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
                                             </td>
                                         ))}
                                         <td key={item.id + "actions"}>
-                                            <EditAndDeleteButtons
-                                                item={item}
-                                                handleEdit={onEditBtnClick}
-                                                handleDelete={() => window.confirm('Are you sure you want to delete this item?') ? handleSubmit(item, "delete") : null}
-                                            />
+                                            <div style={{ minWidth: '130px' }}>
+                                                {/* Div-wrapper to make both buttons stay on line when responsive */}
+                                                {dataModel.actions?.edit &&
+                                                    <Button
+                                                        variant="outline-primary"
+                                                        size="sm"
+                                                        className="me-2"
+                                                        onClick={() => onEditBtnClick(item)}
+                                                    >
+                                                        Edit
+                                                    </Button>
+                                                }
+                                                {dataModel.actions?.delete &&
+                                                    <Button
+                                                        variant="outline-danger"
+                                                        size="sm"
+                                                        onClick={() => window.confirm('Are you sure you want to delete this item?') ? handleSubmit(item, "delete") : null}
+                                                    >
+                                                        Delete
+                                                    </Button>
+                                                }
+                                                {dataModel.actions?.custom?.map((action, index) => (
+                                                    <Button
+                                                        key={index}
+                                                        variant={action.variant || "primary"}
+                                                        size="sm"
+                                                        onClick={() => action.onClick(item)}
+                                                        className="ms-1"
+                                                    >
+                                                        {action.icon} {action.label}
+                                                    </Button>
+                                                ))}
+                                            </div>
+
                                         </td>
                                     </tr>
                                 ))}

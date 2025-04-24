@@ -9,6 +9,8 @@ import NewWorkOrderPage from "./pages/NewWorkOrder";
 import Customers from "./pages/Customers";
 import Bikes from "./pages/Bikes";
 import WorkOrders from "./pages/WorkOrders";
+import './styles/print.css';
+import PrintWorkOrder from "./pages/PrintWorkOrder";
 
 function App() {
   return (
@@ -41,6 +43,7 @@ function App() {
             <Route path="/work-orders" element={<WorkOrders />} />
             <Route path="/work-orders/new" element={<NewWorkOrderPage />} />
             <Route path="/work-orders/edit/:id" element={<NewWorkOrderPage />} />
+            <Route path="/work-orders/print/:id" element={<PrintWorkOrder />} />
             <Route path="/customers" element={<Customers />} />
             <Route path="/bikes" element={<Bikes />} />
           </Routes>
