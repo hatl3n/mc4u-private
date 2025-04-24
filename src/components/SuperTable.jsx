@@ -16,7 +16,7 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
     // Main entity state
     const [categories, setCategories] = useState([]);
     const [error, setError] = useState(null);
-    const disableColumnFilters = true;
+    const disableColumnFilters = true; // This is kinda deprecated
 
     // Trying to make this into descriptive, resuble formats
     /**

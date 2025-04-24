@@ -7,6 +7,7 @@ function Auth() {
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
 
   // ✅ Check if the user is already logged in on page load
   useEffect(() => {
@@ -53,12 +54,22 @@ function Auth() {
     window.location.reload();
   };
 
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.setAttribute('data-bs-theme', newTheme);
+  };
+
   return (
     <Nav className="ms-auto">
       <NavDropdown title={user ? user.email : "Account"} id="auth-dropdown" align="end">
         {user ? (
           <>
             <NavDropdown.Item disabled>Welcome, {user.email}!</NavDropdown.Item>
+            <NavDropdown.Item onClick={toggleTheme}>
+              Switch to {theme === 'light' ? 'Dark' : 'Light'} Mode
+            </NavDropdown.Item>
             <NavDropdown.Divider />
             <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
           </>
