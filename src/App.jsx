@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+import { HashRouter as Router, Route, Routes, Link } from "react-router-dom";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
@@ -15,7 +15,7 @@ import PrintWorkOrder from "./pages/PrintWorkOrder";
 function App() {
   return (
     <div>
-      <Router basename="/mc4u-private">
+      <Router>
         <Navbar bg="dark" variant="dark" expand="lg">
           <Container>
             <Navbar.Brand as={Link} href="/">MC4U</Navbar.Brand>
