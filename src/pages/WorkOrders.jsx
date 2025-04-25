@@ -197,7 +197,7 @@ function WorkOrders() {
                     icon: "🖨️",
                     variant: "info",
                     onClick: (item) => {
-                        window.open(`/work-orders/print/${item.id}`, '_blank');
+                        navigate(`/work-orders/print/${item.id}`);
                     }
                 }
             ]
