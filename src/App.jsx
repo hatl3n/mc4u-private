@@ -15,10 +15,10 @@ import PrintWorkOrder from "./pages/PrintWorkOrder";
 function App() {
   return (
     <div>
-      <Router>
+      <Router basename="/mc4u-private">
         <Navbar bg="dark" variant="dark" expand="lg">
           <Container>
-            <Navbar.Brand href="/">MC4U</Navbar.Brand>
+            <Navbar.Brand as={Link} href="/">MC4U</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="me-auto">
@@ -36,16 +36,16 @@ function App() {
         </Navbar>
         <Container className="mt-4">
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/inventory" element={<Inventory />} />
-            <Route path="/todosystem" element={<ToDoSystem />} />
-            <Route path="/claudedemo" element={<ClaudeDemo />} />
-            <Route path="/work-orders" element={<WorkOrders />} />
-            <Route path="/work-orders/new" element={<NewWorkOrderPage />} />
-            <Route path="/work-orders/edit/:id" element={<NewWorkOrderPage />} />
-            <Route path="/work-orders/print/:id" element={<PrintWorkOrder />} />
-            <Route path="/customers" element={<Customers />} />
-            <Route path="/bikes" element={<Bikes />} />
+            <Route index element={<Dashboard />} />
+            <Route path="inventory" element={<Inventory />} />
+            <Route path="todosystem" element={<ToDoSystem />} />
+            <Route path="claudedemo" element={<ClaudeDemo />} />
+            <Route path="work-orders" element={<WorkOrders />} />
+            <Route path="work-orders/new" element={<NewWorkOrderPage />} />
+            <Route path="work-orders/edit/:id" element={<NewWorkOrderPage />} />
+            <Route path="work-orders/print/:id" element={<PrintWorkOrder />} />
+            <Route path="customers" element={<Customers />} />
+            <Route path="bikes" element={<Bikes />} />
           </Routes>
         </Container>
       </Router>
