@@ -129,6 +129,12 @@ function WorkOrders() {
                 valueOverride: (i) => i.bike ? `${i.bike.license_plate ? i.bike.license_plate : i.bike.vin} - ${i.bike.model_year || ''} ${i.bike.make || ''} ${i.bike.model || ''}` : '-'
             },
             {
+                key: "odometer",
+                label: "Odometer",
+                type: "integer",
+                searchable: false,
+            },
+            {
                 key: "notes",
                 label: "Notater",
                 type: "text",

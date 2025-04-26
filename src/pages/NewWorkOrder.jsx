@@ -346,6 +346,7 @@ const NewWorkOrderPage = () => {
         bike_id: workOrder.bike_id,
         status: workOrder.status,
         notes: workOrder.notes,
+        odometer: workOrder.odometer,
         total_inc_vat: workOrder.total_inc_vat
       }
 
@@ -492,25 +493,41 @@ const NewWorkOrderPage = () => {
                 <Form.Label>Notes</Form.Label>
                 <Form.Control
                   as="textarea"
-                  rows={3}
+                  rows={4}
                   value={workOrder.notes}
                   onChange={(e) => setWorkOrder({ ...workOrder, notes: e.target.value })}
                   placeholder="Enter work order notes, issues, or special instructions..."
                 />
               </Form.Group>
 
-              <Form.Group className="mb-4">
-                <Form.Label>Status</Form.Label>
-                <Form.Select
-                  value={workOrder.status}
-                  onChange={(e) => setWorkOrder({ ...workOrder, status: e.target.value })}
-                >
-                  <option value="open">Open</option>
-                  <option value="finished">Finished</option>
-                  <option value="paid">Betalt</option>
-                  <option value="deleted">Deleted</option>
-                </Form.Select>
-              </Form.Group>
+              <Row className="mb-4">
+                <Col md={6}>
+                  <Form.Group className="mb-4">
+                    <Form.Label>Status</Form.Label>
+                    <Form.Select
+                      value={workOrder.status}
+                      onChange={(e) => setWorkOrder({ ...workOrder, status: e.target.value })}
+                    >
+                      <option value="open">Open</option>
+                      <option value="finished">Finished</option>
+                      <option value="paid">Betalt</option>
+                      <option value="deleted">Deleted</option>
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-4">
+                    <Form.Label>Odometer (km/miles)</Form.Label>
+                    <Form.Control
+                      type="number"
+                      step="1"
+                      value={workOrder.odometer}
+                      onChange={(e) => setWorkOrder({ ...workOrder, odometer: parseInt(e.target.value) || 0 })}
+                      placeholder="Enter the current odometer reading"
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
 
               <div className="mb-3 d-flex justify-content-between align-items-center">
                 <h5 className="mb-0">Items</h5>
@@ -812,7 +829,7 @@ const NewWorkOrderPage = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-    </Container>
+    </Container >
   );
 };
 
