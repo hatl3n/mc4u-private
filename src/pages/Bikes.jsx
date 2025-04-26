@@ -140,7 +140,17 @@ function Bikes() {
         actions: {
             create: true,
             edit: true,
-            delete: true
+            delete: true,
+            custom: [
+                {
+                    label: "SVV",
+                    icon: "🔎",
+                    variant: "info",
+                    onClick: (item) => {
+                        window.open(`https://www.vegvesen.no/kjoretoy/kjop-og-salg/kjoretoyopplysninger/sjekk-kjoretoyopplysninger/?registreringsnummer=${item.license_plate}`, "_blank");
+                    }
+                }
+            ]
         }
     };
 
