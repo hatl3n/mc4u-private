@@ -127,12 +127,6 @@ function Bikes() {
                 searchable: true
             },
             {
-                key: "km",
-                label: "Km-stand",
-                type: "text",
-                searchable: true
-            },
-            {
                 key: "model_year",
                 label: "Årsmodell",
                 type: "text",
@@ -150,22 +144,59 @@ function Bikes() {
         }
     };
 
+    const customJsxAfterForm = (formItem, setFormItem) => {
+        const fetchVehicleInfo = async () => {
+            if (!formItem.license_plate) {
+                alert('Please enter a license plate number first');
+                return;
+            }
+
+            const { data, error } = await supabase.functions.invoke('api-call-with-secret-header', {
+                body: {
+                    name: 'Functions',
+                    regnr: formItem.license_plate
+                }
+            });
+            if (!error) {
+                console.log('Fetched vehicle info:', data);
+                // Update form with the fetched data
+                setFormItem(prev => ({
+                    ...prev,
+                    make: data?.kjoretoydataListe?.[0]?.godkjenning?.tekniskGodkjenning?.tekniskeData?.generelt?.merke?.[0]?.merke || data.make,
+                    model: data?.kjoretoydataListe?.[0]?.godkjenning?.tekniskGodkjenning?.tekniskeData?.generelt?.handelsbetegnelse?.[0] || prev.model,
+                    model_year: data?.kjoretoydataListe?.[0]?.forstegangsregistrering?.registrertForstegangNorgeDato || data.year,
+                    vin: data?.kjoretoydataListe[0]?.kjoretoyId?.understellsnummer || data.vin
+                }));
+            } else {
+                alert('Failed to fetch vehicle information');
+                console.error(error);
+            }
+        };
+
+        return (
+            <Button variant='info' onClick={fetchVehicleInfo}>
+                Hent regnr-info fra Vegvesen
+            </Button>
+        );
+    };
+
     return (
-            <Container className="mt-4">
-                <h2>Bikes</h2>
-                {showModal && (
-                    <CreateEditModal
-                        show={showModal}
-                        handleClose={() => setShowModal(false)}
-                        handleSubmit={handleSubmit}
-                        editItem={editItem}
-                        dataModel={bikesModel}
-                        setEditItem={setEditItem}
-                        onEntryAdded={fetchItems}
-                    />
-                )}
-                <SuperTable tableData={bikes} dataModel={bikesModel} onAddBtnClick={onAddBtnClick} onEditBtnClick={onEditBtnClick} handleSubmit={handleSubmit} loading={loading} />
-            </Container>
+        <Container className="mt-4">
+            <h2>Bikes</h2>
+            {showModal && (
+                <CreateEditModal
+                    show={showModal}
+                    handleClose={() => setShowModal(false)}
+                    handleSubmit={handleSubmit}
+                    editItem={editItem}
+                    dataModel={bikesModel}
+                    setEditItem={setEditItem}
+                    onEntryAdded={fetchItems}
+                    customJsxAfterForm={customJsxAfterForm}
+                />
+            )}
+            <SuperTable tableData={bikes} dataModel={bikesModel} onAddBtnClick={onAddBtnClick} onEditBtnClick={onEditBtnClick} handleSubmit={handleSubmit} loading={loading} />
+        </Container>
     );
 }
 

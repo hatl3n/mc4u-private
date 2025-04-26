@@ -3,7 +3,7 @@ import { Container, Card, Table, Button, Form, Modal, Spinner, Alert, Badge, Inp
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { supabase } from '../supabase';
 
-function CreateEditModal({ show, handleClose, handleSubmit, onEntryAdded, editItem, dataModel, setEditItem }) {
+function CreateEditModal({ show, handleClose, handleSubmit, onEntryAdded, editItem, dataModel, setEditItem, customJsxAfterForm }) {
     const [formItem, setFormItem] = useState({});
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
@@ -81,6 +81,7 @@ function CreateEditModal({ show, handleClose, handleSubmit, onEntryAdded, editIt
                         }
                     })}
                 </Form>
+                {customJsxAfterForm && customJsxAfterForm(formItem, setFormItem)}
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={handleClose}>

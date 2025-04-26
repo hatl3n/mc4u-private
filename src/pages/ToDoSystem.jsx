@@ -153,7 +153,7 @@ return (
           <DynamicTable tableHeading="Completed ToDos" tableData={filteredData.completed} onEdit={onEdit} />
         </Tab>
         <Tab eventKey="claude" title="SuperTable-test">
-          <SuperTable tableData={todoData} dataModel={todoModel2} onEdit={onEdit} />
+          <SuperTable tableData={todoData} dataModel={todoModel2} onEditBtnClick={onEdit} />
         </Tab>
         <Tab eventKey="add-new" title={editItem ? "\u270F Rediger" : `\u2795 Ny`} >
           <CreateToDoEntry onEntryAdded={onEntryAdded} editItem={editItem} setEditItem={setEditItem} />
