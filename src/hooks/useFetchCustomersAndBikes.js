@@ -21,7 +21,7 @@ function useFetchCustomersAndBikes() {
   const fetchBikesData = async () => {
     const { data: bikesData, error } = await supabase
       .from("bikes")
-      .select("id, license_plate, make, model, model_year, km");
+      .select("id, license_plate, make, model, model_year");
     if (error) {
       setError(error.message);
     } else {
