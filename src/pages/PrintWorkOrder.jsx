@@ -82,7 +82,11 @@ const PrintWorkOrder = () => {
             <div className="header-section">
                 <div className="order-details sm-6">
                     <h2>Arbeidsordre #{workOrder.id}</h2>
-                    <p>Dato: {new Date(workOrder.created_at).toLocaleDateString('no-NO')}</p>
+                    <p>
+                        Dato: {new Date(workOrder.created_at).toLocaleDateString('no-NO')}
+                        <br/>
+                        Odometer: {workOrder.odometer}
+                    </p>
                 </div>
                 <div className="company-header sm-6">
                     <h4>MC4U</h4>
