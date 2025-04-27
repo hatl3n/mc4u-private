@@ -44,7 +44,7 @@ function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
     if (error) {
       console.log("Failed to add ToDoEntry");
     } else {
-      setMessage("Ny oppføring lagt til!");
+      setMessage("Ny oppføring lagt til!"); // Never gets to see this before disappears to other tab..!
       setTimeout(() => setMessage(null), 2500);
       setNewItem(INITIAL_NEW_ITEM);
       onEntryAdded();
@@ -52,6 +52,7 @@ function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
   };
 
   const updateToDoEntry = async (entry) => {
+    // Clean react-select objects into simple values
     let cleaned_entries = Object.entries(entry).map(([k, v]) => {
       return _isObject(v) === true && v.hasOwnProperty("value") ? [k, v.value] : [k, v];
     });
@@ -63,7 +64,7 @@ function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
     if (error) {
       console.log("Failed to update ToDoEntry");
     } else {
-      setMessage("Oppføring oppdatert!");
+      setMessage("Oppføring oppdatert!"); // Never gets to see this before disappears to other tab..!
       setTimeout(() => setMessage(null), 2500);
       setNewItem(INITIAL_NEW_ITEM);
       onEntryAdded();

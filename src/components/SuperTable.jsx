@@ -156,9 +156,11 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
             <Card className="mb-4">
                 <Card.Header className="d-flex justify-content-between align-items-center">
                     <h5 className="mb-0">{dataModel.name || "List data"}</h5>
-                    <Button variant="primary" onClick={onAddBtnClick}>
-                        Add New Item
-                    </Button>
+                    {onAddBtnClick &&
+                        <Button variant="primary" onClick={onAddBtnClick}>
+                            Add New Item
+                        </Button>
+                    }
                 </Card.Header>
                 <Card.Body>
                     {loading && <div className="text-center py-4"><Spinner animation="border" /></div>}

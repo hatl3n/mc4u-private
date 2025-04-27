@@ -46,6 +46,23 @@ function ToDoSystem() {
     setActiveTab("add-new");
   };
 
+  async function handleSubmit(formItem, method) {
+    if (!formItem.id) throw new Error("No ID provided for handleSubmit");
+
+    if (method === "delete") {
+      const { error } = await supabase
+        .from("todo_list")
+        .delete()
+        .match({ id: formItem.id });
+      if (!error) {
+        setTodoData(todoData.filter((item) => item.id !== formItem.id));
+      }
+      else {
+        setError(`Error while deleting: ${error.message}`);
+      }
+    }
+  }
+
   useEffect(() => {
     fetchTodoData();
   }, [fetchTodoData]);
@@ -54,37 +71,37 @@ function ToDoSystem() {
     name: "ToDo List",
     endpoint: "todo_list", // Supabase table name
     fields: [
-      { 
-        key: "fk_customers", 
-        label: "Kunde", 
-        type: "foreign", 
+      {
+        key: "fk_customers",
+        label: "Kunde",
+        type: "foreign",
         valueOverride: ['customers', 'name'],
         searchable: true
       },
-      { 
-        key: "fk_bikes", 
-        label: "Sykkel", 
-        type: "foreign", 
+      {
+        key: "fk_bikes",
+        label: "Sykkel",
+        type: "foreign",
         valueOverride: (i) => i.bikes ? `${i.bikes?.license_plate}: ${i.bikes?.model_year} ${i.bikes?.make} ${i.bikes?.model}` : '-',
         searchable: true
       },
-      { 
-        key: "hva", 
-        label: "Hva", 
+      {
+        key: "hva",
+        label: "Hva",
         type: "text",
         required: true,
-        searchable: true 
+        searchable: true
       },
-      { 
-        key: "created_at", 
-        label: "Opprettet", 
+      {
+        key: "created_at",
+        label: "Opprettet",
         type: "date",
-        editable: false 
+        editable: false
       },
-      { 
-        key: "status", 
-        label: "Status", 
-        type: "select", 
+      {
+        key: "status",
+        label: "Status",
+        type: "select",
         options: ["todo", "waiting", "completed"].map((s) => ({ value: s, label: s })),
         valueOverride: (i) => <Badge bg="primary" className="ms-2">{i.status}</Badge>,
         filterable: true
@@ -95,7 +112,7 @@ function ToDoSystem() {
       direction: "desc"
     },
     actions: {
-      create: true,
+      //create: true,
       edit: true,
       delete: true
     }
@@ -109,7 +126,7 @@ function ToDoSystem() {
       {!loading && !error && (
         <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-3">
           <Tab eventKey="super-table" title="ToDos">
-            <SuperTable tableData={todoData} dataModel={todoModel} onEditBtnClick={onEdit} />
+            <SuperTable tableData={todoData} dataModel={todoModel} onEditBtnClick={onEdit} handleSubmit={handleSubmit} />
           </Tab>
           <Tab eventKey="add-new" title={editItem ? "\u270F Rediger" : `\u2795 Ny`} >
             <CreateToDoEntry onEntryAdded={onEntryAdded} editItem={editItem} setEditItem={setEditItem} />
