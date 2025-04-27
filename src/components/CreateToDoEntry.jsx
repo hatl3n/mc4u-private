@@ -8,7 +8,8 @@ import useFetchCustomersAndBikes from "../hooks/useFetchCustomersAndBikes";
 
 function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
   const { customers, bikes, loading, setLoading, error } = useFetchCustomersAndBikes();
-  const [newItem, setNewItem] = useState({ fk_customers: null, fk_bikes: null, hva: "", status: "todo" });
+  const INITIAL_NEW_ITEM = { fk_customers: null, fk_bikes: null, hva: "", status: "todo" };
+  const [newItem, setNewItem] = useState(INITIAL_NEW_ITEM);
   const [message, setMessage] = useState(null);
 
   useEffect(() => {
@@ -17,6 +18,7 @@ function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
     }
   }, [editItem, customers, bikes]);
 
+  // This shouldn't be necessary, if editItem is passed..? Unless to ensure it's fresh data, if multiple edits are made..
   const prepopulateEntry = async (id) => {
     setLoading(true);
     const { data: returnedData, error } = await supabase
@@ -44,7 +46,7 @@ function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
     } else {
       setMessage("Ny oppføring lagt til!");
       setTimeout(() => setMessage(null), 2500);
-      setNewItem({ fk_customers: null, fk_bikes: null, hva: "", status: "todo" });
+      setNewItem(INITIAL_NEW_ITEM);
       onEntryAdded();
     }
   };
@@ -63,15 +65,25 @@ function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
     } else {
       setMessage("Oppføring oppdatert!");
       setTimeout(() => setMessage(null), 2500);
-      setNewItem({ fk_customers: null, fk_bikes: null, hva: "", status: "todo" });
+      setNewItem(INITIAL_NEW_ITEM);
       onEntryAdded();
       cancelEdit();
     }
 
   };
 
+  const customerOptions = customers.map(cx => ({
+    value: cx.id,
+    label: `(${cx.id}) ${cx.name} - ${cx.phone}`
+  }));
+
+  const bikeOptions = bikes.map(c => ({
+    value: c.id,
+    label: `${c.license_plate || c.vin || '-'}: ${c.model_year} ${c.make} ${c.model}`
+  }));
+
   const _isObject = (x) => typeof x === 'object' && !Array.isArray(x) && x !== null;
-  const cancelEdit = () => { setEditItem(null); setNewItem({ fk_customers: null, fk_bikes: null, hva: "", status: "todo" }); };
+  const cancelEdit = () => { setEditItem(null); setNewItem(INITIAL_NEW_ITEM); };
 
   return (
     <Container className="mt-4">
@@ -79,8 +91,9 @@ function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
       <Form onSubmit={(e) => { e.preventDefault(); editItem ? updateToDoEntry(newItem) : addToDoEntry(newItem); }} className="mt-3">
         <Form.Group className="mb-2">
           <Form.Label>Kunde</Form.Label>
-          <Select options={customers.map(cx => ({ value: cx.id, label: `(${cx.id}) ${cx.name} - ${cx.phone}` }))}
-            value={ editItem ? ({value: newItem.fk_customers, label: editItem.fk_customers}) : newItem.fk_customers }
+          <Select
+            options={customerOptions}
+            value={editItem ? customerOptions.find(c => c.value === newItem.fk_customers) : newItem.fk_customers}
             onChange={(e) => setNewItem({ ...newItem, fk_customers: e })}
             placeholder="Velg kunde"
             isSearchable
@@ -90,8 +103,9 @@ function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
         </Form.Group>
         <Form.Group className="mb-2">
           <Form.Label>Motorsykkel</Form.Label>
-          <Select options={bikes.map(c => ({ value: c.id, label: `${c.license_plate}: ${c.model_year} ${c.make} ${c.model}` }))}
-            value={ editItem ? ({value: newItem.fk_bikes, label: editItem.fk_bikes}) : newItem.fk_bikes }
+          <Select
+            options={bikeOptions}
+            value={editItem ? bikeOptions.find(b => b.value === newItem.fk_bikes) : newItem.fk_bikes}
             onChange={(e) => setNewItem({ ...newItem, fk_bikes: e })}
             placeholder="Velg motorsykkel"
             isSearchable
@@ -109,19 +123,19 @@ function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
             disabled={loading}
           />
         </Form.Group>
-        { editItem &&
-        <Form.Group className="mb-2">
+        {editItem &&
+          <Form.Group className="mb-2">
             <Form.Label>Status</Form.Label>
             <Form.Select value={newItem.status} onChange={(e) => setNewItem({ ...newItem, status: e.target.value })} disabled={loading}>
-                <option value="todo">ToDo</option>
-                <option value="waiting">Waiting</option>
-                <option value="completed">Completed</option>
+              <option value="todo">ToDo</option>
+              <option value="waiting">Waiting</option>
+              <option value="completed">Completed</option>
             </Form.Select>
-        </Form.Group>
+          </Form.Group>
         }
         <Form.Group className="mb-2">
-            <Button type="submit" variant="primary">{editItem ? "Oppdater" : "Legg til"}</Button>
-            {editItem && <Button variant="secondary" onClick={cancelEdit}>Avbryt</Button>}
+          <Button type="submit" variant="primary">{editItem ? "Oppdater" : "Legg til"}</Button>
+          {editItem && <Button variant="secondary" onClick={cancelEdit}>Avbryt</Button>}
         </Form.Group>
         {message && <Alert variant="success">{message}</Alert>}
         {error && <Alert variant="danger">{error}</Alert>}
