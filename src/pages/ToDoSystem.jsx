@@ -96,7 +96,8 @@ function ToDoSystem() {
         key: "created_at",
         label: "Opprettet",
         type: "date",
-        editable: false
+        editable: false,
+        valueOverride: (i) => i.created_at ? new Date(i.created_at).toLocaleString("no-NO") : '-'
       },
       {
         key: "status",
