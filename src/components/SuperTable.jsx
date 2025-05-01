@@ -158,7 +158,7 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
                     <h5 className="mb-0">{dataModel.name || "List data"}</h5>
                     {onAddBtnClick &&
                         <Button variant="primary" onClick={onAddBtnClick}>
-                            Add New Item
+                            + Legg til
                         </Button>
                     }
                 </Card.Header>
@@ -168,7 +168,7 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
                     {error && <Alert variant="danger">{error}</Alert>}
 
                     {!loading && !error && tableData.length === 0 && (
-                        <Alert variant="info">No items found. Create your first item!</Alert>
+                        <Alert variant="info">Her var det tomt! Lag din første oppføring.</Alert>
                     )}
 
                     {/* Filter buttons */}
@@ -176,7 +176,7 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
                         <><Form.Group className="mb-2">
                             <Form.Control
                                 type="text"
-                                placeholder="Search"
+                                placeholder="Søk"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 autoComplete='one-time-code' />
@@ -187,7 +187,7 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
                                     variant={activeCategoryValue === null ? "primary" : "secondary"}
                                     onClick={() => setActiveCategoryValue(null)}
                                 >
-                                    All
+                                    Alle
                                 </Button>
                                 {categories.map(category => (
                                     <Button
@@ -198,7 +198,8 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
                                         {category.label}
                                     </Button>
                                 ))}
-                            </ButtonGroup></>
+                            </ButtonGroup>
+                        </>
                     )}
 
                     {!loading && !error && dataModel.fields.length > 0 && (
@@ -214,6 +215,11 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
                                             {sortConfig.key === field.key && (sortConfig.direction === 'asc' ? ' ↑' : ' ↓')}
                                         </th>
                                     ))}
+                                     {dataModel?.actions &&
+                                        <th key="actions">
+                                            Handlinger
+                                        </th>
+                                    }
                                 </tr>
                                 <tr>
                                     {!disableColumnFilters && dataModel.fields.map((field) => (
@@ -262,25 +268,23 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
                                             </td>
                                         ))}
                                         <td key={item.id + "actions"}>
-                                            <div style={{ minWidth: '130px' }}>
-                                                {/* Div-wrapper to make both buttons stay on line when responsive */}
+                                            <div className="d-flex flex-wrap gap-2">
                                                 {dataModel.actions?.edit &&
                                                     <Button
                                                         variant="outline-primary"
                                                         size="sm"
-                                                        className="me-2"
                                                         onClick={() => onEditBtnClick(item)}
                                                     >
-                                                        Edit
+                                                        Rediger
                                                     </Button>
                                                 }
                                                 {dataModel.actions?.delete &&
                                                     <Button
                                                         variant="outline-danger"
                                                         size="sm"
-                                                        onClick={() => window.confirm('Are you sure you want to delete this item?') ? handleSubmit(item, "delete") : null}
+                                                        onClick={() => window.confirm('Er du sikker på du vil slette oppføringen?') ? handleSubmit(item, "delete") : null}
                                                     >
-                                                        Delete
+                                                        Slett
                                                     </Button>
                                                 }
                                                 {dataModel.actions?.custom?.map((action, index) => (
@@ -289,7 +293,6 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
                                                         variant={action.variant || "primary"}
                                                         size="sm"
                                                         onClick={() => action.onClick(item)}
-                                                        className="ms-1"
                                                     >
                                                         {action.icon} {action.label}
                                                     </Button>

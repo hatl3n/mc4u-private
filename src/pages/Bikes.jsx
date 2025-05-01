@@ -92,7 +92,7 @@ function Bikes() {
     }
 
     const bikesModel = {
-        name: "Bikes",
+        name: "Sykler",
         endpoint: "bikes", // Supabase table name
         fields: [
             {
@@ -192,7 +192,7 @@ function Bikes() {
 
     return (
         <Container className="mt-4">
-            <h2>Bikes</h2>
+            <h2>Motorsykler</h2>
             {showModal && (
                 <CreateEditModal
                     show={showModal}
