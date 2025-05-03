@@ -158,15 +158,15 @@ const PrintWorkOrder = () => {
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colSpan="5" className="text-end">Total (ex VAT):</td>
+                            <td colSpan="5" className="text-end">Total (eks MVA):</td>
                             <td className="text-end">{formatCurrency(calculateTotals(workOrder.items).totalExVat)}</td>
                         </tr>
                         <tr>
-                            <td colSpan="5" className="text-end">VAT:</td>
+                            <td colSpan="5" className="text-end">MVA:</td>
                             <td className="text-end">{formatCurrency(calculateTotals(workOrder.items).totalVat)}</td>
                         </tr>
                         <tr>
-                            <td colSpan="5" className="text-end">Total (inc VAT):</td>
+                            <td colSpan="5" className="text-end">Total (ink MVA):</td>
                             <td className="text-end fw-bold">{formatCurrency(calculateTotals(workOrder.items).totalIncVat)}</td>
                         </tr>
                     </tfoot>

@@ -304,21 +304,21 @@ const NewWorkOrderPage = () => {
   const validateWorkOrder = () => {
     const errors = {};
 
-    if (!workOrder.customer_id) {
-      errors.id = 'Please select a customer';
+    /*if (!workOrder.customer_id) {
+      errors.id = 'Velg en kunde';
     }
 
     if (!workOrder.bike_id) {
-      errors.bike_id = 'Please select a bike';
-    }
+      errors.bike_id = 'Velg en sykkel';
+    }*/
 
     if (!workOrder.items.length) {
-      errors.items = 'Please add at least one item';
+      errors.items = 'Legg til minst en varelinje';
     } else {
       // Check if all items have descriptions
       const hasEmptyDescriptions = workOrder.items.some(item => !item.description.trim());
       if (hasEmptyDescriptions) {
-        errors.itemDescription = 'All items must have a description';
+        errors.itemDescription = 'Alle varelinjer må ha en beskrivelse';
       }
     }
 
@@ -402,14 +402,14 @@ const NewWorkOrderPage = () => {
       if (itemsError) throw itemsError;
 
       // Show success message and redirect
-      setSaveMessage('Work order saved successfully!');
+      setSaveMessage('Arbeidsordre lagret!');
       setTimeout(() => {
         navigate('/work-orders');
       }, 1500);
 
     } catch (error) {
       console.error('Error saving work order:', error);
-      setSaveMessage('Error saving work order');
+      setSaveMessage('Lagring av arbeidsordre FEILET!');
     } finally {
       setLoading(false);
     }
@@ -419,7 +419,7 @@ const NewWorkOrderPage = () => {
     <Container className="my-4">
       <Card>
         <Card.Header as="h4">
-          {isEditing ? 'Edit Work Order' : 'New Work Order'}
+          {isEditing ? 'Rediger arbeidsordre' : 'Ny arbeidsordre'}
           <Badge
             bg={workOrder.status === 'open' ? 'warning' :
               workOrder.status === 'finished' ? 'primary' :
@@ -434,7 +434,7 @@ const NewWorkOrderPage = () => {
           {loading ? (
             <div className="text-center p-4">
               <Spinner animation="border" />
-              <p className="mt-2">Loading...</p>
+              <p className="mt-2">Laster...</p>
             </div>
           ) : (
             <>
@@ -447,10 +447,10 @@ const NewWorkOrderPage = () => {
               <Row className="mb-4">
                 <Col md={6}>
                   <Form.Group className="mb-3">
-                    <Form.Label>Customer</Form.Label>
+                    <Form.Label>Kunde</Form.Label>
                     <InputGroup>
                       <Form.Control
-                        placeholder="Select a customer"
+                        placeholder="Velg kunde"
                         value={selectedCustomer ? `${selectedCustomer.name} (${selectedCustomer.email})` : ''}
                         readOnly
                         isInvalid={!!validationErrors.id}
@@ -468,10 +468,10 @@ const NewWorkOrderPage = () => {
                 </Col>
                 <Col md={6}>
                   <Form.Group className="mb-3">
-                    <Form.Label>Bike</Form.Label>
+                    <Form.Label>Sykkel</Form.Label>
                     <InputGroup>
                       <Form.Control
-                        placeholder="Select a bike"
+                        placeholder="Velg sykkel"
                         value={selectedBike ? `${selectedBike.make} ${selectedBike.model} (${selectedBike.license_plate})` : ''}
                         readOnly
                         isInvalid={!!validationErrors.bike_id}
@@ -490,7 +490,7 @@ const NewWorkOrderPage = () => {
               </Row>
 
               <Form.Group className="mb-4">
-                <Form.Label>Notes</Form.Label>
+                <Form.Label>Notater</Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={4}
@@ -508,10 +508,10 @@ const NewWorkOrderPage = () => {
                       value={workOrder.status}
                       onChange={(e) => setWorkOrder({ ...workOrder, status: e.target.value })}
                     >
-                      <option value="open">Open</option>
-                      <option value="finished">Finished</option>
+                      <option value="open">Åpen</option>
+                      <option value="finished">Ferdig</option>
                       <option value="paid">Betalt</option>
-                      <option value="deleted">Deleted</option>
+                      <option value="deleted">Slettet</option>
                     </Form.Select>
                   </Form.Group>
                 </Col>
@@ -530,9 +530,9 @@ const NewWorkOrderPage = () => {
               </Row>
 
               <div className="mb-3 d-flex justify-content-between align-items-center">
-                <h5 className="mb-0">Items</h5>
+                <h5 className="mb-0">Varelinjer</h5>
                 <Button variant="primary" size="sm" onClick={addItemLine}>
-                  <span style={{ "color": "transparent", "textShadow": "0 0 0 #fff" }}>&#x2795;</span> Add Item
+                  <span style={{ "color": "transparent", "textShadow": "0 0 0 #fff" }}>&#x2795;</span> Legg til
                 </Button>
               </div>
 
@@ -547,13 +547,13 @@ const NewWorkOrderPage = () => {
               <Table responsive>
                 <thead>
                   <tr>
-                    <th style={{ width: '30%' }}>Description</th>
-                    <th style={{ width: '10%' }}>Quantity</th>
-                    <th style={{ width: '12%' }}>Price (ex VAT)</th>
-                    <th style={{ width: '12%' }}>Price (inc VAT)</th>
-                    <th style={{ width: '10%' }}>VAT %</th>
-                    <th style={{ width: '10%' }}>Discount %</th>
-                    <th style={{ width: '12%' }}>Line Total</th>
+                    <th style={{ width: '30%' }}>Beskrivelse</th>
+                    <th style={{ width: '10%' }}>Antall</th>
+                    <th style={{ width: '12%' }}>Pris (eks MVA)</th>
+                    <th style={{ width: '12%' }}>Pris (ink MVA)</th>
+                    <th style={{ width: '10%' }}>MVA %</th>
+                    <th style={{ width: '10%' }}>Rabatt %</th>
+                    <th style={{ width: '12%' }}>Linjetotal</th>
                     <th style={{ width: '4%' }}></th>
                   </tr>
                 </thead>
@@ -561,7 +561,7 @@ const NewWorkOrderPage = () => {
                   {workOrder.items.length === 0 ? (
                     <tr>
                       <td colSpan="8" className="text-center py-3 text-muted">
-                        No items added yet. Click "Add Item" to add products or services.
+                        Ingen varer lagt til ennå. Klikk "Legg til vare" for å legge til produkter eller tjenester.
                       </td>
                     </tr>
                   ) : (
@@ -572,7 +572,7 @@ const NewWorkOrderPage = () => {
                             type="text"
                             value={item.description}
                             onChange={(e) => updateItemField(index, 'description', e.target.value)}
-                            placeholder="Item description"
+                            placeholder="Beskrivelse"
                           />
                         </td>
                         <td>
@@ -641,17 +641,17 @@ const NewWorkOrderPage = () => {
                 </tbody>
                 <tfoot>
                   <tr>
-                    <td colSpan="6" className="text-end fw-bold">Subtotal (ex VAT):</td>
+                    <td colSpan="6" className="text-end fw-bold">Subtotal (eks MVA):</td>
                     <td className="text-end">{workOrder.total_ex_vat.toFixed(2)}</td>
                     <td></td>
                   </tr>
                   <tr>
-                    <td colSpan="6" className="text-end fw-bold">VAT:</td>
+                    <td colSpan="6" className="text-end fw-bold">MVA:</td>
                     <td className="text-end">{workOrder.total_vat.toFixed(2)}</td>
                     <td></td>
                   </tr>
                   <tr>
-                    <td colSpan="6" className="text-end fw-bold">Total (inc VAT):</td>
+                    <td colSpan="6" className="text-end fw-bold">Total (ink MVA):</td>
                     <td className="text-end fw-bold">{workOrder.total_inc_vat.toFixed(2)}</td>
                     <td></td>
                   </tr>
@@ -661,16 +661,16 @@ const NewWorkOrderPage = () => {
               <div className="d-flex justify-content-end gap-2 mt-4">
                 <Button
                   variant="secondary"
-                  onClick={() => window.confirm('Are you sure you want to navigate away and loose unsaved data?') ? navigate('/work-orders') : null}
+                  onClick={() => window.confirm('Er du sikker på du vil lukke og miste ulagret data?') ? navigate('/work-orders') : null}
                 >
-                  <span style={{ "color": "transparent", "textShadow": "0 0 0 #fff" }}>&#x2716;</span> Cancel
+                  <span style={{ "color": "transparent", "textShadow": "0 0 0 #fff" }}>&#x2716;</span> Avbryt
                 </Button>
                 <Button
                   variant="success"
                   onClick={saveWorkOrder}
                   disabled={loading}
                 >
-                  &#x1F4BE; {isEditing ? 'Update' : 'Save'} Work Order
+                  &#x1F4BE; {isEditing ? 'Oppdater' : 'Lagre'} arbeidsordre
                 </Button>
               </div>
             </>

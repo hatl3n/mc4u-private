@@ -192,7 +192,6 @@ function Bikes() {
 
     return (
         <Container className="mt-4">
-            <h2>Motorsykler</h2>
             {showModal && (
                 <CreateEditModal
                     show={showModal}
