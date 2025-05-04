@@ -40,13 +40,14 @@ function Bikes() {
             console.debug("Data returned from update:", data);
             if (!error) {
                 setBikes(bikes.map((item) => (item.id === editItem.id ? data[0] : item)));
+                setEditItem(null);
+                setShowModal(false);
                 // Should also send success message
             }
             else {
                 console.error("Error updating item:", error.m);
                 alert(`Error updating item! ${error.message}`);
             }
-            setEditItem(null);
         }
         else if (method === "add") {
             console.debug("Adding new item:", formItem);
@@ -57,6 +58,7 @@ function Bikes() {
             console.debug("Data returned from insert:", data);
             if (!error) {
                 setBikes([...bikes, data[0]]);
+                setShowModal(false);
                 // Should also send success message
             }
             else {
@@ -72,6 +74,7 @@ function Bikes() {
                 .eq("id", formItem.id);
             if (!error) {
                 setBikes(bikes.filter((item) => item.id !== formItem.id));
+                setShowModal(false);
                 // Should also send success message
             }
             else {
@@ -79,7 +82,6 @@ function Bikes() {
                 alert(`Error deleting item! ${error.message}`);
             }
         }
-        setShowModal(false);
     }
 
     async function onAddBtnClick() {
