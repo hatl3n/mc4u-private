@@ -42,30 +42,6 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
      *   * @param {delete} delete - Boolean to enable delete action
      * Notice that you can also add other keys not in the sql-data, like 'actions' for buttons etc.
      */
-    // TO BE DELETED WHEN EVERYTHING IS WORKING
-    /*if (!dataModel) {
-        dataModel = {
-            name: "List data", // Name of the data model
-            endpoint: "items", // Supabase table name
-            fields: [
-                { key: 'id', label: 'ID', type: 'text' },
-                { key: 'name', label: 'Name', type: 'text', filterable: true },
-                { key: 'description', label: 'Description', type: 'textarea' },
-                { key: 'category_id', label: 'Category', valueOverride: ['categories', 'name'], type: 'select' },
-                { key: 'price', label: 'Price', type: 'number', valueOverride: (currentItem) => formatPrice(currentItem.price) },
-                //{ key: 'actions', label: 'Actions', type: 'actions', valueOverride: (currentItem) => <EditAndDeleteButtons item={currentItem} handleEdit={handleEdit} handleDelete={handleDelete} /> } // This is outside of the model tho
-            ],/*
-            defaultSort: {
-                key: "name",
-                direction: "asc"
-            },*/
-    /*actions: {
-        create: true,
-        edit: true,
-        delete: true
-    } // TODO: THESE ER NOT USED YET, STILL RELIES ON ACTIONS KEYS FROM FIELDS. How2FixGood?
-}
-}*/
 
     // Filter state
     const [filteredItems, setFilteredItems] = useState([]);
