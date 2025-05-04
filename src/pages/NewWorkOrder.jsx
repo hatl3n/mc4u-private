@@ -341,6 +341,20 @@ const NewWorkOrderPage = () => {
     }
   };
 
+  // Create new item line if tabbing away from the last item line
+  const handleDiscountKeyDown = (event, index) => {
+    if (event.key === 'Tab' && !event.shiftKey && index === workOrder.items.length - 1) {
+      event.preventDefault();
+      addItemLine();
+      // Use setTimeout to ensure the new row is rendered before focusing
+      setTimeout(() => {
+        const inputs = document.querySelectorAll('input[placeholder="Beskrivelse"]');
+        const lastInput = inputs[inputs.length - 1];
+        lastInput?.focus();
+      }, 0);
+    }
+  };
+
   return (
     <Container className="my-4">
       <Card>
@@ -525,6 +539,7 @@ const NewWorkOrderPage = () => {
                             value={item.discount_percent}
                             onChange={(e) => updateItemField(index, 'discount_percent', parseFloat(e.target.value) || 0)}
                             placeholder="0"
+                            onKeyDown={(e) => handleDiscountKeyDown(e, index)}
                           />
                         </td>
                         <td className="text-end">
@@ -534,6 +549,7 @@ const NewWorkOrderPage = () => {
                           <Button
                             variant="outline-danger"
                             size="sm"
+                            tabIndex={-1}
                             onClick={() => removeItemLine(index)}
                           >
                             <span style={{ "fontSize": "small" }}>&#x274C;</span>
