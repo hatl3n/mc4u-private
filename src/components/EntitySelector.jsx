@@ -75,7 +75,7 @@ const EntitySelector = ({
               />
             </InputGroup>
             <Form.Text className="text-muted">
-              Type at least {searchMinLength} characters to start searching
+              Skriv inn minst {searchMinLength} tegn for å starte søket
             </Form.Text>
           </Form.Group>
 
@@ -83,8 +83,8 @@ const EntitySelector = ({
             {searchResults.length === 0 ? (
               <p className="text-center text-muted my-4">
                 {searchTerm.length < searchMinLength
-                  ? `Type to search...`
-                  : 'No results found'}
+                  ? `Skriv for å søke...`
+                  : 'Ingen resultater funnet'}
               </p>
             ) : (
               <Table hover>
