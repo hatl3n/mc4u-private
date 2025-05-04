@@ -6,10 +6,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   Container, Row, Col, Form, Button, Card, Table,
-  InputGroup, Modal, Spinner, Badge
+  Spinner, Badge
 } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase';
+import CustomerSelector from '../components/CustomerSelector';
+import BikeSelector from '../components/BikeSelector';
 
 const NewWorkOrderPage = () => {
   const { id } = useParams();
@@ -31,16 +33,10 @@ const NewWorkOrderPage = () => {
   });
 
   // Search State
-  const [customerSearchTerm, setCustomerSearchTerm] = useState('');
-  const [bikeSearchTerm, setBikeSearchTerm] = useState('');
-  const [customerSearchResults, setCustomerSearchResults] = useState([]);
-  const [bikeSearchResults, setBikeSearchResults] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedBike, setSelectedBike] = useState(null);
 
   // UI State
-  const [showCustomerModal, setShowCustomerModal] = useState(false);
-  const [showBikeModal, setShowBikeModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
@@ -124,76 +120,6 @@ const NewWorkOrderPage = () => {
       line_total_ex_vat: line_total_ex_vat,
       line_total_inc_vat: line_total_inc_vat
     };
-  };
-
-  // Search for customers
-  const searchCustomers = async (term) => {
-    if (!term || term.length < 2) {
-      setCustomerSearchResults([]);
-      return;
-    }
-
-    try {
-      const { data, error } = await supabase
-        .from('customers')
-        .select('*')
-        .or(`name.ilike.%${term}%,email.ilike.%${term}%,phone.ilike.%${term}%`)
-        .limit(10);
-
-      if (error) throw error;
-      setCustomerSearchResults(data);
-    } catch (error) {
-      console.error('Error searching customers:', error);
-    }
-  };
-
-  // Search for bikes
-  const searchBikes = async (term) => {
-    if (!term || term.length < 2) {
-      setBikeSearchResults([]);
-      return;
-    }
-
-    try {
-      const { data, error } = await supabase
-        .from('bikes')
-        .select('*')
-        .or(`model.ilike.%${term}%,license_plate.ilike.%${term}%,make.ilike.%${term}%`)
-        .limit(10);
-
-      if (error) throw error;
-      setBikeSearchResults(data);
-    } catch (error) {
-      console.error('Error searching bikes:', error);
-    }
-  };
-
-  // Handle customer search input
-  const handleCustomerSearch = (e) => {
-    const term = e.target.value;
-    setCustomerSearchTerm(term);
-    searchCustomers(term);
-  };
-
-  // Handle bike search input
-  const handleBikeSearch = (e) => {
-    const term = e.target.value;
-    setBikeSearchTerm(term);
-    searchBikes(term);
-  };
-
-  // Select a customer
-  const handleSelectCustomer = (customer) => {
-    setSelectedCustomer(customer);
-    setWorkOrder({ ...workOrder, customer_id: customer.id });
-    setShowCustomerModal(false);
-  };
-
-  // Select a bike
-  const handleSelectBike = (bike) => {
-    setSelectedBike(bike);
-    setWorkOrder({ ...workOrder, bike_id: bike.id });
-    setShowBikeModal(false);
   };
 
   // Add a new item line
@@ -446,46 +372,24 @@ const NewWorkOrderPage = () => {
 
               <Row className="mb-4">
                 <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Kunde</Form.Label>
-                    <InputGroup>
-                      <Form.Control
-                        placeholder="Velg kunde"
-                        value={selectedCustomer ? `${selectedCustomer.name} (${selectedCustomer.email})` : ''}
-                        readOnly
-                        isInvalid={!!validationErrors.id}
-                      />
-                      <Button variant="outline-secondary" onClick={() => setShowCustomerModal(true)}>
-                        &#x1F50D;
-                      </Button>
-                    </InputGroup>
-                    {validationErrors.id && (
-                      <Form.Text className="text-danger">
-                        {validationErrors.id}
-                      </Form.Text>
-                    )}
-                  </Form.Group>
+                  <CustomerSelector
+                    value={selectedCustomer}
+                    onChange={(customer) => {
+                      setSelectedCustomer(customer);
+                      setWorkOrder({ ...workOrder, customer_id: customer?.id || null });
+                    }}
+                  />
                 </Col>
                 <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Sykkel</Form.Label>
-                    <InputGroup>
-                      <Form.Control
-                        placeholder="Velg sykkel"
-                        value={selectedBike ? `${selectedBike.make} ${selectedBike.model} (${selectedBike.license_plate})` : ''}
-                        readOnly
-                        isInvalid={!!validationErrors.bike_id}
-                      />
-                      <Button variant="outline-secondary" onClick={() => setShowBikeModal(true)}>
-                        &#x1F50D;
-                      </Button>
-                    </InputGroup>
-                    {validationErrors.bike_id && (
-                      <Form.Text className="text-danger">
-                        {validationErrors.bike_id}
-                      </Form.Text>
-                    )}
-                  </Form.Group>
+                  <BikeSelector
+                    value={selectedBike}
+                    onChange={(bike) => {
+                      setSelectedBike(bike);
+                      setWorkOrder({ ...workOrder, bike_id: bike?.id || null });
+                    }}
+                    isInvalid={!!validationErrors.bike_id}
+                    errorMessage={validationErrors.bike_id}
+                  />
                 </Col>
               </Row>
 
@@ -677,159 +581,7 @@ const NewWorkOrderPage = () => {
           )}
         </Card.Body>
       </Card>
-
-      {/* Customer Search Modal */}
-      <Modal
-        show={showCustomerModal}
-        onHide={() => setShowCustomerModal(false)}
-        size="lg"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Select Customer</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Group className="mb-3">
-            <InputGroup>
-              <Form.Control
-                type="text"
-                placeholder="Search customers by name, email or phone..."
-                value={customerSearchTerm}
-                onChange={handleCustomerSearch}
-                autoFocus
-                autoComplete='one-time-code'
-              />
-              <Button variant="outline-secondary">
-                &#x1F50D;
-              </Button>
-            </InputGroup>
-            <Form.Text className="text-muted">
-              Type at least 2 characters to start searching
-            </Form.Text>
-          </Form.Group>
-
-          <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-            {customerSearchResults.length === 0 ? (
-              <p className="text-center text-muted my-4">
-                {customerSearchTerm.length < 2
-                  ? 'Type to search for customers'
-                  : 'No customers found matching your search'}
-              </p>
-            ) : (
-              <Table hover>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {customerSearchResults.map(customer => (
-                    <tr key={customer.id}>
-                      <td>{customer.name}</td>
-                      <td>{customer.email}</td>
-                      <td>{customer.phone}</td>
-                      <td>
-                        <Button
-                          size="sm"
-                          variant="primary"
-                          onClick={() => handleSelectCustomer(customer)}
-                        >
-                          Select
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            )}
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowCustomerModal(false)}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      {/* Bike Search Modal */}
-      <Modal
-        show={showBikeModal}
-        onHide={() => setShowBikeModal(false)}
-        size="lg"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Select Bike</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Group className="mb-3">
-            <InputGroup>
-              <Form.Control
-                type="text"
-                placeholder="Search bikes by make, model or licenseplate number..."
-                value={bikeSearchTerm}
-                onChange={handleBikeSearch}
-                autoFocus
-                autoComplete='off'
-              />
-              <Button variant="outline-secondary">
-                &#x1F50D;
-              </Button>
-            </InputGroup>
-            <Form.Text className="text-muted">
-              Type at least 2 characters to start searching
-            </Form.Text>
-          </Form.Group>
-
-          <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-            {bikeSearchResults.length === 0 ? (
-              <p className="text-center text-muted my-4">
-                {bikeSearchTerm.length < 2
-                  ? 'Type to search for bikes'
-                  : 'No bikes found matching your search'}
-              </p>
-            ) : (
-              <Table hover>
-                <thead>
-                  <tr>
-                    <th>Make</th>
-                    <th>Model</th>
-                    <th>Licenseplate</th>
-                    <th>Owner</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bikeSearchResults.map(bike => (
-                    <tr key={bike.id}>
-                      <td>{bike.make}</td>
-                      <td>{bike.model}</td>
-                      <td>{bike.license_plate}</td>
-                      <td>{bike.owner_name}</td>
-                      <td>
-                        <Button
-                          size="sm"
-                          variant="primary"
-                          onClick={() => handleSelectBike(bike)}
-                        >
-                          Select
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            )}
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowBikeModal(false)}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </Container >
+    </Container>
   );
 };
 

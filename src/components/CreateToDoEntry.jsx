@@ -1,34 +1,39 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabase";
 import { Alert, Form, Button, Container } from 'react-bootstrap';
-import Select from "react-select";
-import useFetchCustomersAndBikes from "../hooks/useFetchCustomersAndBikes";
+import CustomerSelector from "./CustomerSelector";
+import BikeSelector from "./BikeSelector";
 
 // TODO: Rename to CreateOrUpdateToDoEntry
 
 function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
-  const { customers, bikes, loading, setLoading, error } = useFetchCustomersAndBikes();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null); // Not in use(?)
   const INITIAL_NEW_ITEM = { fk_customers: null, fk_bikes: null, hva: "", status: "todo" };
   const [newItem, setNewItem] = useState(INITIAL_NEW_ITEM);
   const [message, setMessage] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedBike, setSelectedBike] = useState(null);
 
   useEffect(() => {
     if (editItem) {
       prepopulateEntry(editItem.id);
     }
-  }, [editItem, customers, bikes]);
+  }, [editItem]);
 
   // This shouldn't be necessary, if editItem is passed..? Unless to ensure it's fresh data, if multiple edits are made..
   const prepopulateEntry = async (id) => {
     setLoading(true);
     const { data: returnedData, error } = await supabase
       .from("todo_list")
-      .select("*")
+      .select("*, fk_customers(*), fk_bikes(*)")
       .eq("id", id);
     if (error) {
       console.log("Failed to fetch ToDoEntry");
     } else {
       setNewItem(returnedData[0]);
+      setSelectedCustomer(returnedData[0].fk_customers);
+      setSelectedBike(returnedData[0].fk_bikes);
     }
     setLoading(false);
   };
@@ -46,7 +51,7 @@ function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
     } else {
       setMessage("Ny oppføring lagt til!"); // Never gets to see this before disappears to other tab..!
       setTimeout(() => setMessage(null), 2500);
-      setNewItem(INITIAL_NEW_ITEM);
+      initializeForm();
       onEntryAdded();
     }
   };
@@ -66,54 +71,34 @@ function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
     } else {
       setMessage("Oppføring oppdatert!"); // Never gets to see this before disappears to other tab..!
       setTimeout(() => setMessage(null), 2500);
-      setNewItem(INITIAL_NEW_ITEM);
+      initializeForm();
       onEntryAdded();
-      cancelEdit();
+      initializeForm();
     }
 
   };
 
-  const customerOptions = customers.map(cx => ({
-    value: cx.id,
-    label: `(${cx.id}) ${cx.name} - ${cx.phone}`
-  }));
-
-  const bikeOptions = bikes.map(c => ({
-    value: c.id,
-    label: `${c.license_plate || c.vin || '-'}: ${c.model_year} ${c.make} ${c.model}`
-  }));
-
   const _isObject = (x) => typeof x === 'object' && !Array.isArray(x) && x !== null;
-  const cancelEdit = () => { setEditItem(null); setNewItem(INITIAL_NEW_ITEM); };
+  const initializeForm = () => { setEditItem(null); setNewItem(INITIAL_NEW_ITEM); setSelectedCustomer(null); setSelectedBike(null); };
 
   return (
     <Container className="mt-4">
       <h4>{editItem ? "Rediger oppføring" : "Ny oppføring"}</h4>
       <Form onSubmit={(e) => { e.preventDefault(); editItem ? updateToDoEntry(newItem) : addToDoEntry(newItem); }} className="mt-3">
-        <Form.Group className="mb-2">
-          <Form.Label>Kunde</Form.Label>
-          <Select
-            options={customerOptions}
-            value={editItem ? customerOptions.find(c => c.value === newItem.fk_customers) : newItem.fk_customers}
-            onChange={(e) => setNewItem({ ...newItem, fk_customers: e })}
-            placeholder="Velg kunde"
-            isSearchable
-            isLoading={loading}
-            disabled={loading}
-          />
-        </Form.Group>
-        <Form.Group className="mb-2">
-          <Form.Label>Motorsykkel</Form.Label>
-          <Select
-            options={bikeOptions}
-            value={editItem ? bikeOptions.find(b => b.value === newItem.fk_bikes) : newItem.fk_bikes}
-            onChange={(e) => setNewItem({ ...newItem, fk_bikes: e })}
-            placeholder="Velg motorsykkel"
-            isSearchable
-            isLoading={loading}
-            disabled={loading}
-          />
-        </Form.Group>
+        <CustomerSelector
+          value={selectedCustomer}
+          onChange={(customer) => {
+            setSelectedCustomer(customer);
+            setNewItem({ ...newItem, fk_customers: customer?.id || null });
+          }}
+        />
+        <BikeSelector
+          value={selectedBike}
+          onChange={(bike) => {
+            setSelectedBike(bike);
+            setNewItem({ ...newItem, fk_bikes: bike?.id || null });
+          }}
+        />
         <Form.Group className="mb-2">
           <Form.Label>Huskeliste</Form.Label>
           <Form.Control
@@ -135,8 +120,8 @@ function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
           </Form.Group>
         }
         <Form.Group className="mb-2">
-          <Button type="submit" variant="primary">{editItem ? "Oppdater" : "Legg til"}</Button>
-          {editItem && <Button variant="secondary" onClick={cancelEdit}>Avbryt</Button>}
+          <Button type="submit" variant="primary" className="me-2">{editItem ? "Oppdater" : "Legg til"}</Button>
+          <Button variant="secondary" onClick={initializeForm}>Avbryt</Button>
         </Form.Group>
         {message && <Alert variant="success">{message}</Alert>}
         {error && <Alert variant="danger">{error}</Alert>}
