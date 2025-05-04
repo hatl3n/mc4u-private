@@ -139,6 +139,7 @@ function WorkOrders() {
                 label: "Notater",
                 type: "text",
                 searchable: true,
+                // TODO: MOVE THIS TRUNCATION INTO SuperTable SO IT DOESNT AFFECT OTHER VIEWS..!!
                 valueOverride: (i) => {
                     const maxLength = 50;
                     const text = i.notes || '-';

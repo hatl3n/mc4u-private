@@ -108,7 +108,8 @@ function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
         <Form.Group className="mb-2">
           <Form.Label>Huskeliste</Form.Label>
           <Form.Control
-            type="text"
+            as={"textarea"}
+            rows={4}
             placeholder="Huskeliste"
             value={newItem.hva}
             onChange={(e) => setNewItem({ ...newItem, hva: e.target.value })}

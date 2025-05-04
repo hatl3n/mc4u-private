@@ -85,7 +85,7 @@ function ToDoSystem() {
         key: "fk_bikes",
         label: "Sykkel",
         type: "foreign",
-        valueOverride: (i) => i.bikes ? `${i.bikes?.license_plate}: ${i.bikes?.model_year} ${i.bikes?.make} ${i.bikes?.model}` : '-',
+        valueOverride: (i) => i.bikes ? `${i.bikes?.license_plate || i.bikes?.vin || '-'}: ${i.bikes?.model_year || ''} ${i.bikes?.make || ''} ${i.bikes?.model || ''}` : '-',
         searchable: true
       },
       {
@@ -93,7 +93,18 @@ function ToDoSystem() {
         label: "Hva",
         type: "text",
         required: true,
-        searchable: true
+        searchable: true,
+        // TODO: MOVE THIS TRUNCATION INTO SuperTable SO IT DOESNT AFFECT OTHER VIEWS..!!
+        valueOverride: (i) => {
+          const maxLength = 50;
+          const text = i.hva || '-';
+          const truncated = text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+          return (
+            <span title={text} className="text-truncate d-inline-block" style={{ maxWidth: '300px' }}>
+                {truncated}
+            </span>
+          );
+        }
       },
       {
         key: "created_at",
