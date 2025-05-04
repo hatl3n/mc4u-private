@@ -8,24 +8,25 @@ import {
   Container, Row, Col, Form, Button, Card, Table,
   Spinner, Badge
 } from 'react-bootstrap';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../supabase';
 import CustomerSelector from '../components/CustomerSelector';
 import BikeSelector from '../components/BikeSelector';
 
 const NewWorkOrderPage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { id } = useParams(); // Used to fetch id out of url, to know we're going to edit an existing work order
   const isEditing = !!id;
+  const navigate = useNavigate(); // Prepare navigation router
+  const location = useLocation(); // Access to location state to fetch passed state
 
   // Work Order State
   const [workOrder, setWorkOrder] = useState({
     id: null,
     created_at: new Date().toISOString(),
     status: 'open',
-    customer_id: null,
-    bike_id: null,
-    notes: '',
+    customer_id: location.state?.customer_id || null,
+    bike_id: location.state?.bike_id || null,
+    notes: location.state?.notes || '',
     total_ex_vat: 0,
     total_vat: 0,
     total_inc_vat: 0,
@@ -33,8 +34,8 @@ const NewWorkOrderPage = () => {
   });
 
   // Search State
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [selectedBike, setSelectedBike] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(location.state?.customer || null);
+  const [selectedBike, setSelectedBike] = useState(location.state?.bike || null);
 
   // UI State
   const [loading, setLoading] = useState(false);

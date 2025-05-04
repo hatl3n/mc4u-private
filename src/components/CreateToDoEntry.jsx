@@ -26,26 +26,28 @@ function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
     setLoading(true);
     const { data: returnedData, error } = await supabase
       .from("todo_list")
-      .select("*, fk_customers(*), fk_bikes(*)")
+      .select("*, customers:fk_customers(*), bikes:fk_bikes(*)")
       .eq("id", id);
     if (error) {
       console.log("Failed to fetch ToDoEntry");
     } else {
       setNewItem(returnedData[0]);
-      setSelectedCustomer(returnedData[0].fk_customers);
-      setSelectedBike(returnedData[0].fk_bikes);
+      setSelectedCustomer(returnedData[0].customers);
+      setSelectedBike(returnedData[0].bikes);
     }
     setLoading(false);
   };
 
   const addToDoEntry = async (entry) => {
+    /* Commenting out code not needed after removed react-select. 
     let cleaned_entries = Object.entries(entry).map(([k, v]) => {
       return _isObject(v) === true && v.hasOwnProperty("value") ? [k, v.value] : [k, v];
     });
     let cleaned_object = Object.fromEntries(cleaned_entries);
+    */
     const { data: returnedData, error } = await supabase
       .from("todo_list")
-      .insert([cleaned_object]);
+      .insert([entry]);
     if (error) {
       console.log("Failed to add ToDoEntry");
     } else {
@@ -57,11 +59,15 @@ function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
   };
 
   const updateToDoEntry = async (entry) => {
+    /* See same comment on addToDoEntry
     // Clean react-select objects into simple values
     let cleaned_entries = Object.entries(entry).map(([k, v]) => {
       return _isObject(v) === true && v.hasOwnProperty("value") ? [k, v.value] : [k, v];
     });
     let cleaned_object = Object.fromEntries(cleaned_entries);
+    */
+    // Remove unnecessary properties that isn't writeable to the database
+    const { customers, bikes, ...cleaned_object } = entry;
     const { data: returnedData, error } = await supabase
       .from("todo_list")
       .update(cleaned_object)

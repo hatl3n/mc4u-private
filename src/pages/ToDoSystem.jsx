@@ -4,6 +4,7 @@ import CreateToDoEntry from "../components/CreateToDoEntry";
 import SuperTable from "../components/SuperTable";
 import { supabase } from "../supabase";
 import { Badge } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 function ToDoSystem() {
   const [loading, setLoading] = useState(true);
@@ -14,11 +15,13 @@ function ToDoSystem() {
   const [activeTab, setActiveTab] = useState(INITIAL_TAB);
   const [todoData, setTodoData] = useState([]);
 
+  const navigate = useNavigate();
+
   const fetchTodoData = useCallback(async () => {
     setLoading(true);
     const { data: tableData, error } = await supabase
       .from("todo_list")
-      .select("*, customers:fk_customers (name), bikes:fk_bikes (license_plate, model_year, make, model)");
+      .select("*, customers:fk_customers (*), bikes:fk_bikes (*)");
     if (error) {
       console.log(error);
       setError(error.message);
@@ -115,7 +118,25 @@ function ToDoSystem() {
     actions: {
       //create: true,
       edit: true,
-      delete: true
+      delete: true,
+      custom: [
+        {
+          icon: "📃",
+          label: "Lag AO",
+          variant: "info",
+          onClick: (item) => {
+            navigate(`/work-orders/new`, {
+              state: {
+                customer_id: item.fk_customers,
+                bike_id: item.fk_bikes,
+                customer: item.customers,
+                bike: item.bikes,
+                notes: item.hva
+              }
+            });
+          }
+        }
+      ]
     }
   };
 
