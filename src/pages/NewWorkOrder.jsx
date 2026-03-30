@@ -336,7 +336,7 @@ const NewWorkOrderPage = () => {
 
     } catch (error) {
       console.error('Error saving work order:', error);
-      setSaveMessage('Lagring av arbeidsordre FEILET!');
+      setSaveMessage('Error: Lagring av arbeidsordre FEILET!');
     } finally {
       setLoading(false);
     }
