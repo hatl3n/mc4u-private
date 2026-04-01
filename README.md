@@ -21,3 +21,17 @@ apt-get update && apt-get install nano
 
 Senere fjernet tailwindcss og lastet inn:
 npm install react-bootstrap bootstrap
+
+# Jevnlig updates
+npm outdated - lists what can be npm updated (check wanted vs latest - maybe time to upgrade a major?)
+
+npm update
+
+npm audit
+(npm audit fix)
+
+npm run build
+(npm run lint)
+npm run dev - test locally
+
+Commit and push, and the npm run deploy to push GH-page.
