@@ -4,7 +4,6 @@ import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
 import Auth from "./components/Auth";
 import ToDoSystem from "./pages/ToDoSystem";
-import ClaudeDemo from "./components/ClaudeDemo";
 import NewWorkOrderPage from "./pages/NewWorkOrder";
 import Customers from "./pages/Customers";
 import Bikes from "./pages/Bikes";
@@ -25,7 +24,6 @@ function App() {
                 <Nav.Link as={Link} to="/">&#x303D;Dashboard</Nav.Link>
                 <Nav.Link as={Link} to="/inventory">&#x1F4E6;Inventory</Nav.Link>
                 <Nav.Link as={Link} to="/todosystem">&#x1F4DD;ToDo System</Nav.Link>
-                <Nav.Link as={Link} to="/claudedemo">&#x1F4DD;ClaudeMal</Nav.Link>
                 <Nav.Link as={Link} to="/work-orders">&#x1F527;Arbeidsordre</Nav.Link>
                 <Nav.Link as={Link} to="/customers">&#x1F913;Kunder</Nav.Link>
                 <Nav.Link as={Link} to="/bikes">&#x1F3CD;Sykler</Nav.Link>
@@ -39,7 +37,6 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="inventory" element={<Inventory />} />
             <Route path="todosystem" element={<ToDoSystem />} />
-            <Route path="claudedemo" element={<ClaudeDemo />} />
             <Route path="work-orders" element={<WorkOrders />} />
             <Route path="work-orders/new" element={<NewWorkOrderPage />} />
             <Route path="work-orders/edit/:id" element={<NewWorkOrderPage />} />
