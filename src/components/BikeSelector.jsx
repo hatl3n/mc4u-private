@@ -1,31 +1,24 @@
 import React, { useState } from 'react';
-import { supabase } from '../supabase';
 import EntitySelector from './EntitySelector';
 import { bikesModel } from '../models/bikesModel';
 import CreateEditModal from './CreateEditModal';
+import { VegvesenAutoFormFill } from './VegvesenAutoFormFill';
+import useBikes from '../hooks/useBikes';
 
 const BikeSelector = ({ value, onChange }) => {
+    const { bikes, searchBikes, addBike, loading, error, setError } = useBikes();
     const [searchResults, setSearchResults] = useState([]);
     const [showNewBikeModal, setShowNewBikeModal] = useState(false);
 
-    const searchBikes = async (term) => {
+    // Wrap searchBikes to update local searchResults
+    const handleSearch = async (term) => {
         if (!term || term.length < 2) {
             setSearchResults([]);
             return;
         }
-
-        try {
-            const { data, error } = await supabase
-                .from('bikes')
-                .select('*')
-                .or(`model.ilike.%${term}%,license_plate.ilike.%${term}%,vin.ilike.%${term}%make.ilike.%${term}%`)
-                .limit(10);
-
-            if (error) throw error;
-            setSearchResults(data);
-        } catch (error) {
-            console.error('Error searching bikes:', error);
-        }
+        setError(null);
+        await searchBikes(term);
+        setSearchResults(bikes);
     };
 
     const columns = [
@@ -36,20 +29,19 @@ const BikeSelector = ({ value, onChange }) => {
     ];
 
     async function handleSubmit(formItem, action) {
-        if (action !== "add") { alert("Feil skjedd, se konsoll for feilmelding"); console.error(formItem); console.error(action); return; }
-        console.debug("Adding new item:", formItem);
-        const { data, error } = await supabase
-            .from("bikes")
-            .insert([formItem])
-            .select();
-        console.debug("Data returned from insert:", data);
+        setError(null);
+        if (action !== "add") {
+            alert("Feil skjedd, se konsoll for feilmelding");
+            console.error(formItem);
+            console.error(action);
+            return;
+        }
+        const { data, error } = await addBike(formItem);
         if (error) {
-            console.error("Error adding item:", error);
             alert(`Error adding item! ${error.message}`);
             return;
         }
-        //setBikes([...bikes, data[0]]);
-        // Send upstream the data row with the new customer as if it was Selected in EntitySelector
+        // Send upstream the data row with the new bike as if it was Selected in EntitySelector
         onChange(data[0]);
         setShowNewBikeModal(false);
     }
@@ -62,7 +54,7 @@ const BikeSelector = ({ value, onChange }) => {
                 searchPlaceholder="Søk etter sykkel (merke, modell, reg.nr, vin)..."
                 value={value}
                 onChange={onChange}
-                onSearch={searchBikes}
+                onSearch={handleSearch}
                 searchResults={searchResults}
                 columns={columns}
                 renderValue={(bike) => `${bike.make} ${bike.model} (${bike.license_plate || bike.vin || 'Ingen regnr/vin'})`}
@@ -73,8 +65,7 @@ const BikeSelector = ({ value, onChange }) => {
                 handleClose={() => setShowNewBikeModal(false)}
                 handleSubmit={handleSubmit}
                 dataModel={bikesModel}
-            //editItem={editItem} // Some functions in CreateEditModal require editItem to be set, but we don't need it here
-            //setEditItem={setEditItem}
+                customJsxAfterForm={VegvesenAutoFormFill}
             />
         </>
     );

@@ -1,102 +1,75 @@
-// NEXT UT: Denne fungerer faktisk fint nå, push til customers og andre steder!
-// Vurder refactor for å minske repetition. (Flytt all handling inn i SUperTable og Modal og heller send kun hooks for sql?)
-// Mangler: Select/multiselect og foreign key
-// Mangler: DELETE handling!
 
-import { useEffect, useState } from "react";
-import { Container, Form, Button, Table, Spinner } from "react-bootstrap";
-import { supabase } from "../supabase";
+// Bikes.jsx
+//
+// Page for managing the list of bikes in the system.
+// Uses the useBikes hook for all bike data logic (fetch, add, edit, delete).
+// Renders a SuperTable for listing and editing bikes, and a CreateEditModal for add/edit forms.
+// All bike field definitions and rendering logic are centralized in bikesModel.
+//
+// This page demonstrates the DRY pattern for entity management: all data logic is in hooks, all UI is in reusable components.
+//
+// Main components:
+// - useBikes: Custom hook for all bike CRUD/search logic
+// - SuperTable: Generic table for displaying and managing entities
+// - CreateEditModal: Generic modal for add/edit forms
+// - bikesModel: Field definitions and rendering for bikes
+// - VegvesenAutoFormFill: Custom JSX for bike form (optional, for auto-filling from Vegvesen)
+
+import { useState } from "react";
+import { Container } from "react-bootstrap";
 import SuperTable from "../components/SuperTable";
 import CreateEditModal from "../components/CreateEditModal";
 import { bikesModel } from "../models/bikesModel";
 import { VegvesenAutoFormFill } from "../components/VegvesenAutoFormFill";
+import useBikes from "../hooks/useBikes";
 
 function Bikes() {
-    const [bikes, setBikes] = useState([]);
-    const [loading, setLoading] = useState(true);
+    // useBikes provides all bike data and CRUD methods
+    const { bikes, loading, error, addBike, updateBike, deleteBike, fetchBikes, setError } = useBikes();
     const [showModal, setShowModal] = useState(false);
     const [editItem, setEditItem] = useState(null);
 
-    async function fetchItems() {
-        let { data, error } = await supabase.from("bikes").select("*");
-        if (!error) {
-            setBikes(data);
-            setLoading(false);
-        }
-    }
-
-    useEffect(() => {
-        fetchItems();
-    }, []);
-
+    // Unified handleSubmit for CreateEditModal and SuperTable
     async function handleSubmit(formItem, method) {
+        setError(null);
         if (method === "edit") {
-            console.debug("Updating item:", editItem);
-            const { data, error } = await supabase
-                .from("bikes")
-                .update(formItem)
-                .eq("id", editItem.id)
-                .select();
-            console.debug("Data returned from update:", data);
+            if (!editItem) return;
+            const { error } = await updateBike(editItem.id, formItem);
             if (!error) {
-                setBikes(bikes.map((item) => (item.id === editItem.id ? data[0] : item)));
                 setEditItem(null);
                 setShowModal(false);
-                // Should also send success message
-            }
-            else {
-                console.error("Error updating item:", error.m);
+            } else {
                 alert(`Error updating item! ${error.message}`);
             }
-        }
-        else if (method === "add") {
-            console.debug("Adding new item:", formItem);
-            const { data, error } = await supabase
-                .from("bikes")
-                .insert([formItem])
-                .select();
-            console.debug("Data returned from insert:", data);
+        } else if (method === "add") {
+            const { error } = await addBike(formItem);
             if (!error) {
-                setBikes([...bikes, data[0]]);
                 setShowModal(false);
-                // Should also send success message
-            }
-            else {
-                console.error("Error adding item:", error);
+            } else {
                 alert(`Error adding item! ${error.message}`);
             }
-        }
-        else if (method === "delete") {
-            console.debug("Deleting item:", formItem);
-            const { data, error } = await supabase
-                .from("bikes")
-                .delete()
-                .eq("id", formItem.id);
+        } else if (method === "delete") {
+            const { error } = await deleteBike(formItem.id);
             if (!error) {
-                setBikes(bikes.filter((item) => item.id !== formItem.id));
                 setShowModal(false);
-                // Should also send success message
-            }
-            else {
-                console.error("Error deleting item:", error);
+            } else {
                 alert(`Error deleting item! ${error.message}`);
             }
         }
     }
 
-    async function onAddBtnClick() {
+    function onAddBtnClick() {
         setShowModal(true);
         setEditItem(null);
     }
-    async function onEditBtnClick(item) {
+    function onEditBtnClick(item) {
         setShowModal(true);
         setEditItem(item);
-        //const { data, error } = await supabase.from("inventory").insert([newItem]);
-        //if (!error) setItems([...items, newItem]);
     }
 
     return (
         <Container className="mt-4">
+            {/* Modal for adding/editing bikes. Controlled by showModal/editItem state. */}
             {showModal && (
                 <CreateEditModal
                     show={showModal}
@@ -105,11 +78,19 @@ function Bikes() {
                     editItem={editItem}
                     dataModel={bikesModel}
                     setEditItem={setEditItem}
-                    onEntryAdded={fetchItems}
+                    onEntryAdded={fetchBikes}
                     customJsxAfterForm={VegvesenAutoFormFill}
                 />
             )}
-            <SuperTable tableData={bikes} dataModel={bikesModel} onAddBtnClick={onAddBtnClick} onEditBtnClick={onEditBtnClick} handleSubmit={handleSubmit} loading={loading} />
+            {/* SuperTable displays the list of bikes and provides add/edit/delete actions. */}
+            <SuperTable
+                tableData={bikes}
+                dataModel={bikesModel}
+                onAddBtnClick={onAddBtnClick}
+                onEditBtnClick={onEditBtnClick}
+                handleSubmit={handleSubmit}
+                loading={loading}
+            />
         </Container>
     );
 }
