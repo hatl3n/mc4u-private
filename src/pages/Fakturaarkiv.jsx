@@ -105,7 +105,6 @@ function Fakturaarkiv() {
                         onAddBtnClick={null}
                         onEditBtnClick={null}
                         handleSubmit={null}
-                        tableProps={{ size: 'sm', className: 'align-middle' }}
                     />
                 </div>
             {/* Paginering */}
