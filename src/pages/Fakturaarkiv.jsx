@@ -25,11 +25,17 @@ function Fakturaarkiv() {
                 .range((page - 1) * pageSize, page * pageSize - 1);
 
             if (search) {
-                const columns = [
-                    'fakturanummer','navn','fakturadato','pris_ink_mva','pris_eks_mva','moms','betalt','status','adresse','adresse2','kontakt','forfallsdato','betalingsdato','varelinjer'
+                // Only search in: navn, adresse, adresse2, kontakt
+                const textColumns = [
+                    'navn', 'adresse', 'adresse2', 'kontakt'
                 ];
-                const orFilter = columns.map(col => `${col}.ilike.%${search}%`).join(',');
-                query = query.or(orFilter);
+                const orFilters = textColumns.map(col => `${col}.ilike.%${search}%`);
+                // For varelinjer (jsonb), use ::text ilike if supported, else skip
+                // Supabase/PostgREST does not support ilike on jsonb directly, but you can use a computed column or a view in SQL for fulltext search
+                // Here, we try varelinjer::text ilike if supported by your API
+                //orFilters.push(`varelinjer::text.ilike.%${search}%`);
+                const orFilter = orFilters.join(',');
+                if (orFilter) query = query.or(orFilter);
             }
 
             let { data, error, count } = await query;
