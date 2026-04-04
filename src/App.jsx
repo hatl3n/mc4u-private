@@ -7,6 +7,7 @@ import NewWorkOrderPage from "./pages/NewWorkOrder";
 import Customers from "./pages/Customers";
 import Bikes from "./pages/Bikes";
 import WorkOrders from "./pages/WorkOrders";
+import Fakturaarkiv from "./pages/Fakturaarkiv";
 import './styles/print.css';
 import PrintWorkOrder from "./pages/PrintWorkOrder";
 
@@ -25,6 +26,7 @@ function App() {
                 <Nav.Link as={Link} to="/work-orders">&#x1F527;Arbeidsordre</Nav.Link>
                 <Nav.Link as={Link} to="/customers">&#x1F913;Kunder</Nav.Link>
                 <Nav.Link as={Link} to="/bikes">&#x1F3CD;Sykler</Nav.Link>
+                <Nav.Link as={Link} to="/fakturaarkiv">&#x1F4C3;Fakturaarkiv</Nav.Link>
               </Nav>
               <Auth />
             </Navbar.Collapse>
@@ -40,6 +42,7 @@ function App() {
             <Route path="work-orders/print/:id" element={<PrintWorkOrder />} />
             <Route path="customers" element={<Customers />} />
             <Route path="bikes" element={<Bikes />} />
+            <Route path="fakturaarkiv" element={<Fakturaarkiv />} />
           </Routes>
         </Container>
       </Router>
