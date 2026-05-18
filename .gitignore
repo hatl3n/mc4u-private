@@ -12,6 +12,8 @@ dist
 dist-ssr
 *.local
 AGENTS.md
+AGENTS-HELPER-DB.sql
+TankeBank/*
 
 # Editor directories and files
 .vscode/*
