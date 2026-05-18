@@ -45,8 +45,8 @@ const PrintWorkOrder = () => {
     };
 
     const calculateTotals = (items) => {
-        const totalExVat = items?.reduce((sum, item) => sum + (item.price_ex_vat * item.quantity), 0) || 0;
-        const totalIncVat = items?.reduce((sum, item) => sum + item.line_total_inc_vat, 0) || 0;
+        const totalIncVat = items?.reduce((sum, item) => sum + (item.line_total_inc_vat || 0), 0) || 0;
+        const totalExVat = items?.reduce((sum, item) => sum + ((item.line_total_inc_vat || 0) / (item.vat_rate || 1.25)), 0) || 0;
         const totalVat = totalIncVat - totalExVat;
 
         return {
