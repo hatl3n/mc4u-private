@@ -105,6 +105,8 @@ function Fakturaarkiv() {
                         onAddBtnClick={null}
                         onEditBtnClick={null}
                         handleSubmit={null}
+                        hideSearch={true}
+                        hideFilters={true}
                     />
                 </div>
             {/* Paginering */}

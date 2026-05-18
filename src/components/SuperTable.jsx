@@ -12,7 +12,7 @@ import { data } from 'react-router-dom';
 // TODO IMPORTANT: EACH QUERY TO SUPABASE RUNS TWICE - ONLY IN DEV, OR?
 // TODO: Når description (eks) blir lang, så endres alle breddene i tabellen. Ikke ryddig, med samtidig, noen td må være brede og andre ikke for dynamisk data -how to fix?
 
-function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnClick, handleSubmit }) {
+function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnClick, handleSubmit, hideSearch = false, hideFilters = false }) {
     // Main entity state
     const [categories, setCategories] = useState([]);
     const [error, setError] = useState(null);
@@ -154,16 +154,18 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
                                 type="text"
                                 placeholder="Søk"
                                 value={searchTerm}
+                                hidden={hideSearch}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 autoComplete='one-time-code' />
                         </Form.Group>
 
-                            <ButtonGroup aria-label='Filtrer' className="mb-3">
-                                <Button
-                                    variant={activeCategoryValue === null ? "primary" : "secondary"}
-                                    onClick={() => setActiveCategoryValue(null)}
-                                >
-                                    Alle
+                            { !hideFilters && (
+                                <ButtonGroup aria-label='Filtrer' className="mb-3">
+                                    <Button
+                                        variant={activeCategoryValue === null ? "primary" : "secondary"}
+                                        onClick={() => setActiveCategoryValue(null)}
+                                    >
+                                        Alle
                                 </Button>
                                 {categories.map(category => (
                                     <Button
@@ -175,6 +177,7 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
                                     </Button>
                                 ))}
                             </ButtonGroup>
+                            ) }
                         </>
                     )}
 
@@ -191,7 +194,7 @@ function SuperTable({ tableData, dataModel, loading, onAddBtnClick, onEditBtnCli
                                             {sortConfig.key === field.key && (sortConfig.direction === 'asc' ? ' ↑' : ' ↓')}
                                         </th>
                                     ))}
-                                     {dataModel?.actions &&
+                                    {dataModel?.actions &&
                                         <th key="actions">
                                             Handlinger
                                         </th>
