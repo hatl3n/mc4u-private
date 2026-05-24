@@ -116,16 +116,15 @@ function CreateToDoEntry({ onEntryAdded, editItem, setEditItem }) {
             disabled={loading}
           />
         </Form.Group>
-        {editItem &&
-          <Form.Group className="mb-2">
-            <Form.Label>Status</Form.Label>
-            <Form.Select value={newItem.status} onChange={(e) => setNewItem({ ...newItem, status: e.target.value })} disabled={loading}>
-              <option value="todo">ToDo</option>
-              <option value="waiting">Waiting</option>
-              <option value="completed">Completed</option>
-            </Form.Select>
-          </Form.Group>
-        }
+        <Form.Group className="mb-2">
+          <Form.Label>Status</Form.Label>
+          <Form.Select value={newItem.status} onChange={(e) => setNewItem({ ...newItem, status: e.target.value })} disabled={loading}>
+            <option value="todo">ToDo</option>
+            <option value="haster">Haster</option>
+            <option value="venter">Venter</option>
+            <option value="ferdig">Ferdig</option>
+          </Form.Select>
+        </Form.Group>
         <Form.Group className="mb-2">
           <Button type="submit" variant="primary" className="me-2">{editItem ? "Oppdater" : "Legg til"}</Button>
           <Button variant="secondary" onClick={initializeForm}>Avbryt</Button>

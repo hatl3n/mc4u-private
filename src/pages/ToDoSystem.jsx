@@ -117,7 +117,7 @@ function ToDoSystem() {
         key: "status",
         label: "Status",
         type: "select",
-        options: ["todo", "waiting", "completed"].map((s) => ({ value: s, label: s })),
+        options: ["todo", "haster", "venter", "ferdig"].map((s) => ({ value: s, label: s })),
         valueOverride: (i) => <Badge bg="primary" className="ms-2">{i.status}</Badge>,
         filterable: true
       }
