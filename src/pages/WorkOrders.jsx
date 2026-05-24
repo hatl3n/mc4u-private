@@ -4,7 +4,7 @@ import { supabase } from "../supabase";
 import SuperTable from "../components/SuperTable";
 import CreateEditModal from "../components/CreateEditModal";
 import { Alert } from "bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function WorkOrders() {
     const navigate = useNavigate();
@@ -119,14 +119,14 @@ function WorkOrders() {
                 label: "Kunde",
                 type: "text",
                 searchable: true,
-                valueOverride: (i) => i.customer ? `${i.customer.name}` : '-'
+                valueOverride: (i) => i.customer ? <Link to={`/customers/${i.customer.id}`}>{i.customer.name}</Link> : '-'
             },
             {
                 key: "bike_id",
                 label: "Sykkel",
                 type: "text",
                 searchable: true,
-                valueOverride: (i) => i.bike ? `${i.bike.license_plate ? i.bike.license_plate : i.bike.vin} - ${i.bike.model_year || ''} ${i.bike.make || ''} ${i.bike.model || ''}` : '-'
+                valueOverride: (i) => i.bike ? <Link to={`/bikes/${i.bike.id}`}>{i.bike.license_plate ? i.bike.license_plate : i.bike.vin} - {i.bike.model_year || ''} {i.bike.make || ''} {i.bike.model || ''}</Link> : '-'
             },
             {
                 key: "odometer",
