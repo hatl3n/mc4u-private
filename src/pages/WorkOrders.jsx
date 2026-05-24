@@ -157,6 +157,8 @@ function WorkOrders() {
                 type: "select",
                 options: [
                     { value: "open", label: "Åpen" },
+                    {value: "quotation", label: "Tilbud" },
+                    {value: "valuation", label: "Takst" },
                     { value: "finished", label: "Ferdig" },
                     { value: "paid", label: "Betalt" },
                     { value: "deleted", label: "Slettet" }
@@ -171,6 +173,8 @@ function WorkOrders() {
                     };
                     const statusLabel = {
                         'open': 'Åpen',
+                        'quotation': 'Tilbud',
+                        'valuation': 'Takst',
                         'finished': 'Ferdig',
                         'paid': 'Betalt',
                         'deleted': 'Slettet'
