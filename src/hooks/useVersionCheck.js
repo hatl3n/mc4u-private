@@ -9,6 +9,8 @@ export function useVersionCheck() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
 
   const checkVersion = useCallback(async () => {
+    // In dev mode Vite handles updates automatically — skip to avoid false positives
+    if (import.meta.env.DEV) return;
     try {
       const res = await fetch(VERSION_URL + "?t=" + Date.now(), {
         cache: "no-store",
