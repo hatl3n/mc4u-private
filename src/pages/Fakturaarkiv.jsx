@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Container, Modal, Button, Pagination } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
 import SuperTable from "../components/SuperTable";
 
 function Fakturaarkiv() {
+    const navigate = useNavigate();
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -77,6 +79,14 @@ function Fakturaarkiv() {
                     onClick: (item) => {
                         setSelectedInvoice(item);
                         setShowModal(true);
+                    }
+                },
+                {
+                    label: "Print",
+                    icon: "🖨️",
+                    variant: "secondary",
+                    onClick: (item) => {
+                        navigate(`/fakturaarkiv/print/${item.id}`);
                     }
                 }
             ]
@@ -195,6 +205,9 @@ function Fakturaarkiv() {
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowModal(false)}>
                         Lukk
+                    </Button>
+                    <Button variant="primary" onClick={() => navigate(`/fakturaarkiv/print/${selectedInvoice.id}`)}>
+                        🖨️ Print
                     </Button>
                 </Modal.Footer>
             </Modal>

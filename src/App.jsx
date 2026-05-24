@@ -10,6 +10,7 @@ import WorkOrders from "./pages/WorkOrders";
 import Fakturaarkiv from "./pages/Fakturaarkiv";
 import './styles/print.css';
 import PrintWorkOrder from "./pages/PrintWorkOrder";
+import PrintFakturaarkiv from "./pages/PrintFakturaarkiv";
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
             <Route path="customers" element={<Customers />} />
             <Route path="bikes" element={<Bikes />} />
             <Route path="fakturaarkiv" element={<Fakturaarkiv />} />
+            <Route path="fakturaarkiv/print/:id" element={<PrintFakturaarkiv />} />
           </Routes>
         </Container>
       </Router>
