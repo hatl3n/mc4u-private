@@ -4,7 +4,7 @@ import CreateToDoEntry from "../components/CreateToDoEntry";
 import SuperTable from "../components/SuperTable";
 import { supabase } from "../supabase";
 import { Badge } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function ToDoSystem() {
   const [loading, setLoading] = useState(true);
@@ -78,14 +78,14 @@ function ToDoSystem() {
         key: "fk_customers",
         label: "Kunde",
         type: "foreign",
-        valueOverride: ['customers', 'name'],
+        valueOverride: (i) => i.customers ? <Link to={`/customers/${i.customers.id}`}>{i.customers.name}</Link> : '-',
         searchable: true
       },
       {
         key: "fk_bikes",
         label: "Sykkel",
         type: "foreign",
-        valueOverride: (i) => i.bikes ? `${i.bikes?.license_plate || i.bikes?.vin || '-'}: ${i.bikes?.model_year || ''} ${i.bikes?.make || ''} ${i.bikes?.model || ''}` : '-',
+        valueOverride: (i) => i.bikes ? <Link to={`/bikes/${i.bikes.id}`}>{i.bikes.license_plate || i.bikes.vin} - {i.bikes.model_year || ''} {i.bikes.make || ''} {i.bikes.model || ''}</Link> : '-',
         searchable: true
       },
       {
