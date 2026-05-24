@@ -50,6 +50,14 @@ export const bikesModel = {
         delete: true,
         custom: [
             {
+                label: "Vis",
+                icon: "👁️",
+                variant: "outline-secondary",
+                onClick: (item) => {
+                    window.location.hash = `/bikes/${item.id}`;
+                }
+            },
+            {
                 label: "SVV",
                 icon: "🔎",
                 variant: "info",

@@ -59,6 +59,16 @@ export const customersModel = {
     actions: {
         create: true,
         edit: true,
-        delete: true
+        delete: true,
+        custom: [
+            {
+                label: "Vis",
+                icon: "👁️",
+                variant: "outline-secondary",
+                onClick: (item) => {
+                    window.location.hash = `/customers/${item.id}`;
+                }
+            }
+        ]
     }
 };

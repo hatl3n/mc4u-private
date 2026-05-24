@@ -8,6 +8,8 @@ import ToDoSystem from "./pages/ToDoSystem";
 import NewWorkOrderPage from "./pages/NewWorkOrder";
 import Customers from "./pages/Customers";
 import Bikes from "./pages/Bikes";
+import BikeDetail from "./pages/BikeDetail";
+import CustomerDetail from "./pages/CustomerDetail";
 import WorkOrders from "./pages/WorkOrders";
 import Fakturaarkiv from "./pages/Fakturaarkiv";
 import './styles/print.css';
@@ -47,7 +49,9 @@ function App() {
             <Route path="work-orders/edit/:id" element={<NewWorkOrderPage />} />
             <Route path="work-orders/print/:id" element={<PrintWorkOrder />} />
             <Route path="customers" element={<Customers />} />
+            <Route path="customers/:id" element={<CustomerDetail />} />
             <Route path="bikes" element={<Bikes />} />
+            <Route path="bikes/:id" element={<BikeDetail />} />
             <Route path="fakturaarkiv" element={<Fakturaarkiv />} />
             <Route path="fakturaarkiv/print/:id" element={<PrintFakturaarkiv />} />
           </Routes>

@@ -25,7 +25,7 @@ import useBikes from "../hooks/useBikes";
 
 function Bikes() {
     // useBikes provides all bike data and CRUD methods
-    const { bikes, loading, error, addBike, updateBike, deleteBike, fetchBikes, setError } = useBikes();
+    const { bikes, loading, addBike, updateBike, deleteBike, fetchBikes, setError } = useBikes();
     const [showModal, setShowModal] = useState(false);
     const [editItem, setEditItem] = useState(null);
 

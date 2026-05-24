@@ -9,7 +9,7 @@ function useBikes() {
   // Fetch all bikes
   const fetchBikes = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("bikes").select("*");
+    const { data, error } = await supabase.from("bikes").select("*, customers(id, name, email, phone)");
     if (error) {
       setError(error.message);
     } else {
@@ -42,7 +42,7 @@ function useBikes() {
   // Add a new bike
   const addBike = async (bike) => {
     setLoading(true);
-    const { data, error } = await supabase.from("bikes").insert([bike]).select();
+    const { data, error } = await supabase.from("bikes").insert([bike]).select("*, customers(id, name, email, phone)");
     if (error) {
       setError(error.message);
     } else {
@@ -55,7 +55,7 @@ function useBikes() {
   // Update a bike
   const updateBike = async (id, updates) => {
     setLoading(true);
-    const { data, error } = await supabase.from("bikes").update(updates).eq("id", id).select();
+    const { data, error } = await supabase.from("bikes").update(updates).eq("id", id).select("*, customers(id, name, email, phone)");
     if (error) {
       setError(error.message);
     } else {
