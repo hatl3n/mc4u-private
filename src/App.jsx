@@ -2,6 +2,8 @@ import { HashRouter as Router, Route, Routes, Link } from "react-router-dom";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./components/Auth";
+import UpdateBanner from "./components/UpdateBanner";
+import { useVersionCheck } from "./hooks/useVersionCheck";
 import ToDoSystem from "./pages/ToDoSystem";
 import NewWorkOrderPage from "./pages/NewWorkOrder";
 import Customers from "./pages/Customers";
@@ -13,8 +15,11 @@ import PrintWorkOrder from "./pages/PrintWorkOrder";
 import PrintFakturaarkiv from "./pages/PrintFakturaarkiv";
 
 function App() {
+  const { updateAvailable } = useVersionCheck();
+
   return (
     <div>
+      {updateAvailable && <UpdateBanner />}
       <Router>
         <Navbar bg="dark" variant="dark" expand="lg">
           <Container>
