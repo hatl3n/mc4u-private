@@ -6,28 +6,14 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { Container, Card, Button, Table, Badge, Spinner, Alert, Row, Col, ButtonGroup } from "react-bootstrap";
+import { Container, Card, Button, Spinner, Alert, Row, Col } from "react-bootstrap";
 import { supabase } from "../supabase";
 import CreateEditModal from "../components/CreateEditModal";
 import CustomerSelector from "../components/CustomerSelector";
+import WorkOrdersCard from "../components/WorkOrdersCard";
+import OwnershipHistoryCard from "../components/OwnershipHistoryCard";
 import { VegvesenAutoFormFill } from "../components/VegvesenAutoFormFill";
 import { bikesModel } from "../models/bikesModel";
-
-const STATUS_LABELS = {
-    open: "Åpen",
-    quotation: "Tilbud",
-    valuation: "Takst",
-    finished: "Ferdig",
-    paid: "Betalt",
-    deleted: "Slettet",
-};
-
-const STATUS_COLORS = {
-    open: "warning",
-    finished: "primary",
-    paid: "success",
-    deleted: "danger",
-};
 
 function BikeDetail() {
     const { id } = useParams();
@@ -38,14 +24,6 @@ function BikeDetail() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Ownership history state
-    const [ownerHistory, setOwnerHistory] = useState([]);
-    const [historyLoading, setHistoryLoading] = useState(true);
-
-    // Work orders state
-    const [workOrders, setWorkOrders] = useState([]);
-    const [workOrdersLoading, setWorkOrdersLoading] = useState(true);
-
     // Edit modal state
     const [showEditModal, setShowEditModal] = useState(false);
     const [editItem, setEditItem] = useState(null);
@@ -55,7 +33,7 @@ function BikeDetail() {
     const [savingOwner, setSavingOwner] = useState(false);
     const [ownerMessage, setOwnerMessage] = useState(null);
 
-    // ── Fetch functions ───────────────────────────────────────────────
+    // ── Fetch bike ────────────────────────────────────────────────────
 
     async function fetchBike() {
         setLoading(true);
@@ -72,32 +50,8 @@ function BikeDetail() {
         setLoading(false);
     }
 
-    async function fetchOwnerHistory() {
-        setHistoryLoading(true);
-        const { data } = await supabase
-            .from("bike_ownership_history")
-            .select("*, customers(id, name, email, phone)")
-            .eq("bike_id", id)
-            .order("started_at", { ascending: false });
-        setOwnerHistory(data || []);
-        setHistoryLoading(false);
-    }
-
-    async function fetchWorkOrders() {
-        setWorkOrdersLoading(true);
-        const { data } = await supabase
-            .from("work_orders")
-            .select("*, customer:customer_id(id, name)")
-            .eq("bike_id", id)
-            .order("created_at", { ascending: false });
-        setWorkOrders(data || []);
-        setWorkOrdersLoading(false);
-    }
-
     useEffect(() => {
         fetchBike();
-        fetchOwnerHistory();
-        fetchWorkOrders();
     }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // ── Owner handlers ────────────────────────────────────────────────
@@ -116,7 +70,6 @@ function BikeDetail() {
             setOwnerMessage(`Eier oppdatert til ${newOwner.name}`);
             setNewOwner(null);
             await fetchBike();
-            await fetchOwnerHistory();
         }
         setSavingOwner(false);
     }
@@ -134,7 +87,6 @@ function BikeDetail() {
         } else {
             setOwnerMessage("Eier er fjernet.");
             await fetchBike();
-            await fetchOwnerHistory();
         }
         setSavingOwner(false);
     }
@@ -239,110 +191,10 @@ function BikeDetail() {
             </Card>
 
             {/* ── Ownership History ─────────────────────────────── */}
-            <Card className="mb-4">
-                <Card.Header><h5 className="mb-0">Eierhistorikk</h5></Card.Header>
-                <Card.Body>
-                    {historyLoading ? (
-                        <Spinner animation="border" size="sm" />
-                    ) : ownerHistory.length === 0 ? (
-                        <p className="text-muted mb-0">Ingen eierhistorikk registrert.</p>
-                    ) : (
-                        <Table responsive hover size="sm">
-                            <thead>
-                                <tr>
-                                    <th>Eier</th>
-                                    <th>Fra</th>
-                                    <th>Til</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {ownerHistory.map(record => (
-                                    <tr key={record.id}>
-                                        <td>
-                                            {record.customers ? (
-                                                <Link to={`/customers/${record.customers.id}`}>{record.customers.name}</Link>
-                                            ) : "–"}
-                                        </td>
-                                        <td>{new Date(record.started_at).toLocaleDateString("no-NO")}</td>
-                                        <td>
-                                            {record.ended_at
-                                                ? new Date(record.ended_at).toLocaleDateString("no-NO")
-                                                : <Badge bg="success">Nåværende</Badge>}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
-                    )}
-                </Card.Body>
-            </Card>
+            <OwnershipHistoryCard bikeId={id} />
 
             {/* ── Work Orders ───────────────────────────────────── */}
-            <Card className="mb-4">
-                <Card.Header><h5 className="mb-0">Arbeidsordre</h5></Card.Header>
-                <Card.Body>
-                    {workOrdersLoading ? (
-                        <Spinner animation="border" size="sm" />
-                    ) : workOrders.length === 0 ? (
-                        <p className="text-muted mb-0">Ingen arbeidsordre for denne sykkelen.</p>
-                    ) : (
-                        <Table responsive hover size="sm">
-                            <thead>
-                                <tr>
-                                    <th>Ordre#</th>
-                                    <th>Dato</th>
-                                    <th>Kunde</th>
-                                    <th>Status</th>
-                                    <th>Total</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {workOrders.map(wo => (
-                                    <tr key={wo.id}>
-                                        <td>{wo.id}</td>
-                                        <td>{new Date(wo.created_at).toLocaleDateString("no-NO")}</td>
-                                        <td>
-                                            {wo.customer
-                                                ? <Link to={`/customers/${wo.customer.id}`}>{wo.customer.name}</Link>
-                                                : "–"}
-                                        </td>
-                                        <td>
-                                            <Badge bg={STATUS_COLORS[wo.status] || "secondary"}>
-                                                {STATUS_LABELS[wo.status] || wo.status}
-                                            </Badge>
-                                        </td>
-                                        <td>
-                                            {wo.total_inc_vat != null
-                                                ? new Intl.NumberFormat("no-NO", { style: "currency", currency: "NOK" }).format(wo.total_inc_vat)
-                                                : "–"}
-                                        </td>
-                                        <td>
-                                            <ButtonGroup>
-                                                <Button
-                                                    variant="outline-primary"
-                                                    size="sm"
-                                                    onClick={() => navigate(`/work-orders/edit/${wo.id}`)}
-                                                >
-                                                    Åpne
-                                                </Button>
-                                                
-                                                <Button
-                                                    variant="outline-secondary"
-                                                    size="sm"
-                                                    onClick={() => navigate(`/work-orders/print/${wo.id}`)}
-                                                >
-                                                    Print
-                                                </Button>
-                                            </ButtonGroup>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
-                    )}
-                </Card.Body>
-            </Card>
+            <WorkOrdersCard bikeId={id} />
 
             {/* Edit Modal */}
             {showEditModal && (
