@@ -4,13 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
 import SuperTable from "../components/SuperTable";
 
-function Fakturaarkiv() {
+function Fakturaarkiv({initialSearch}) {
     const navigate = useNavigate();
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [selectedInvoice, setSelectedInvoice] = useState(null);
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState(initialSearch || "");
     const [page, setPage] = useState(1);
     const [pageSize] = useState(50);
     const [totalCount, setTotalCount] = useState(0);

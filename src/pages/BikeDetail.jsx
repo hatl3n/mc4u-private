@@ -14,6 +14,7 @@ import WorkOrdersCard from "../components/WorkOrdersCard";
 import OwnershipHistoryCard from "../components/OwnershipHistoryCard";
 import { VegvesenAutoFormFill } from "../components/VegvesenAutoFormFill";
 import { bikesModel } from "../models/bikesModel";
+import Fakturaarkiv from "./Fakturaarkiv";
 
 function BikeDetail() {
     const { id } = useParams();
@@ -195,6 +196,11 @@ function BikeDetail() {
 
             {/* ── Work Orders ───────────────────────────────────── */}
             <WorkOrdersCard bikeId={id} />
+
+            {/* ── Fakturaarkiv Matches ───────────────────────────────────── */}
+            <hr />
+            <h5>Automatisk oppslag mot fakturaarkiv</h5>
+            <Fakturaarkiv initialSearch={bike.license_plate} />
 
             {/* Edit Modal */}
             {showEditModal && (

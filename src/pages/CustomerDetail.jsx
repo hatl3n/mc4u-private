@@ -12,6 +12,7 @@ import CreateEditModal from "../components/CreateEditModal";
 import WorkOrdersCard from "../components/WorkOrdersCard";
 import OwnershipHistoryCard from "../components/OwnershipHistoryCard";
 import { customersModel } from "../models/customersModel";
+import Fakturaarkiv from "./Fakturaarkiv";
 
 function CustomerDetail() {
     const { id } = useParams();
@@ -160,6 +161,11 @@ function CustomerDetail() {
 
             {/* ── Work Orders ───────────────────────────────────── */}
             <WorkOrdersCard customerId={id} />
+
+            {/* ── Fakturaarkiv Matches ───────────────────────────────────── */}
+            <hr />
+            <h5>Automatisk oppslag mot fakturaarkiv</h5>
+            <Fakturaarkiv initialSearch={customer.phone} />
 
             {/* Edit Modal */}
             {showEditModal && (
