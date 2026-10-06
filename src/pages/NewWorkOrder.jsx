@@ -430,6 +430,7 @@ const NewWorkOrderPage = () => {
                       <option value="open">Åpen</option>
                       <option value="quotation">Tilbud</option>
                       <option value="valuation">Takst</option>
+                      <option value="voge">VOGE</option>
                       <option value="finished">Ferdig</option>
                       <option value="paid">Betalt</option>
                       <option value="deleted">Slettet</option>

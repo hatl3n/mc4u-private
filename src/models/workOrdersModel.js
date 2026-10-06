@@ -7,6 +7,7 @@ export const WORK_ORDER_STATUS_LABELS = {
     open: "Åpen",
     quotation: "Tilbud",
     valuation: "Takst",
+    voge: "VOGE",
     finished: "Ferdig",
     paid: "Betalt",
     deleted: "Slettet",

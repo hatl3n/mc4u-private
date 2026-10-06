@@ -157,8 +157,9 @@ function WorkOrders() {
                 type: "select",
                 options: [
                     { value: "open", label: "Åpen" },
-                    {value: "quotation", label: "Tilbud" },
-                    {value: "valuation", label: "Takst" },
+                    { value: "quotation", label: "Tilbud" },
+                    { value: "valuation", label: "Takst" },
+                    { value: "voge", label: "VOGE" },
                     { value: "finished", label: "Ferdig" },
                     { value: "paid", label: "Betalt" },
                     { value: "deleted", label: "Slettet" }
