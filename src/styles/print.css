@@ -89,12 +89,12 @@
     max-width: none !important;
     min-width: 0 !important;
     overflow: visible !important;
+    background: white !important;
+    background-color: white !important;
+    color: black !important;
   }
 
   .print-page {
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
     width: 210mm !important;
     min-height: 297mm !important;
     padding: 10mm !important;
@@ -110,6 +110,14 @@
   /* Hide UI elements but keep container */
   nav, .navbar, .no-print {
     display: none !important;
+  }
+
+  /* Override Bootstrap dark theme CSS variables so they don't bleed onto print pages */
+  :root, [data-bs-theme="dark"], [data-bs-theme] {
+    --bs-body-bg: white !important;
+    --bs-body-color: black !important;
+    --bs-secondary-bg: #f8f9fa !important;
+    --bs-tertiary-bg: #f8f9fa !important;
   }
 
   /* Force background colors */
@@ -132,6 +140,7 @@
     margin: 20px auto;
     padding: 10mm;
     background: white;
+    color: black;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
   }
 }
